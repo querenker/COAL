@@ -60,6 +60,11 @@
 			<artifactId>jna</artifactId>
 			<version>3.0.9</version>
 		</dependency>
+		<dependency>
+			<groupId>com.clarifai</groupId>
+			<artifactId>clarifai-api-java</artifactId>
+			<version>1.2.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
