@@ -1,6 +1,9 @@
-sudo: true
+sudo: required
 
 language: java
+
+services:
+  - rabbitmq
 
 before_install:
   - sudo apt-get update -qq
