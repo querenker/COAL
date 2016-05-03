@@ -7,11 +7,9 @@ import com.clarifai.api.Tag;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.DC;
 import com.rabbitmq.client.*;
 import org.s16a.mcas.Hasher;
 import org.s16a.mcas.MCAS;
-import org.s16a.mcas.util.MediaInfo;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -62,7 +60,7 @@ public class ClarifaiWorker {
 
         String dataFileName = Hasher.getCacheFilename(url) + ".data";
 
-        ClarifaiClient clarifai = new ClarifaiClient(API_KEY, API_SECRET);
+        ClarifaiClient clarifai = new ClarifaiClient("", "" /*API_KEY, API_SECRET*/);
         List<RecognitionResult> results = clarifai.recognize(new RecognitionRequest(url));
 
         Resource r = model.createResource();
