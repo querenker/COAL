@@ -1,0 +1,10 @@
+sudo: required
+
+language: java
+
+services:
+  - rabbitmq
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libmediainfo-dev
