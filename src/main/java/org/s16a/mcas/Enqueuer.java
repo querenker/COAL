@@ -26,6 +26,7 @@ public class Enqueuer {
 
 		Map<String, List<Property>> analyses = new HashMap<String, List<Property>>();
 		analyses.put("image/jpeg", Arrays.asList(MCAS.mediainfo, MCAS.vcd, MCAS.clarifai));
+		analyses.put("image/png", Arrays.asList(MCAS.mediainfo));
 		analyses.put("text/plain", Arrays.asList(MCAS.ner));
 
 		// (1)

@@ -1,9 +1,10 @@
 package org.s16a.mcas.worker;
-
+/*
 import com.clarifai.api.ClarifaiClient;
 import com.clarifai.api.RecognitionRequest;
 import com.clarifai.api.RecognitionResult;
 import com.clarifai.api.Tag;
+//*/
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.util.List;
 
 public class ClarifaiWorker {
+    /*
     private static final String TASK_QUEUE_NAME = MCAS.clarifai.toString();
 
     public static void main(String[] argv) throws Exception {
@@ -60,7 +62,7 @@ public class ClarifaiWorker {
 
         String dataFileName = Hasher.getCacheFilename(url) + ".data";
 
-        ClarifaiClient clarifai = new ClarifaiClient("", "" /*API_KEY, API_SECRET*/);
+        ClarifaiClient clarifai = new ClarifaiClient("", "" /*API_KEY, API_SECRET*/ /*);
         List<RecognitionResult> results = clarifai.recognize(new RecognitionRequest(url));
 
         Resource r = model.createResource();
@@ -81,4 +83,5 @@ public class ClarifaiWorker {
             }
         }
     }
+    //*/
 }

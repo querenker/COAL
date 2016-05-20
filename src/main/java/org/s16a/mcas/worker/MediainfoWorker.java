@@ -48,7 +48,9 @@ public class MediainfoWorker {
 				}
 			}
 		};
+		System.err.println("mediaInfoTMPXXXXXXXXXXXXXXXXXXXXXXXXXXX");
 		channel.basicConsume(TASK_QUEUE_NAME, false, consumer);
+		System.err.println("mediaInfoTMPXXXXXXXXXXXXXXXXXXXXXXXXXXXend");
 	}
 
 	private static void extractMediainfo(String url) throws IOException {
