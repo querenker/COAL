@@ -23,7 +23,11 @@ public abstract class AbstractWorker {
     public final String TASK_QUEUE_NAME;
 
     public AbstractWorker(Property property) {
-        TASK_QUEUE_NAME = property.toString();
+        this(property.toString());
+    }
+
+    public AbstractWorker(String queueName) {
+        TASK_QUEUE_NAME = queueName;
     }
 
 
@@ -46,7 +50,7 @@ public abstract class AbstractWorker {
 
                 System.out.println(" [x] Received '" + message + "'");
                 try {
-                    worker.prozessData(message); //usually URL
+                    worker.processData(message); //usually URL
                 } finally {
                     System.out.println(" [x] Done");
                     channel.basicAck(envelope.getDeliveryTag(), false);
@@ -56,5 +60,5 @@ public abstract class AbstractWorker {
         channel.basicConsume(worker.TASK_QUEUE_NAME, false, consumer);
     }
 
-    protected abstract void prozessData(String url) throws IOException;
+    protected abstract void processData(String url) throws IOException;
 }

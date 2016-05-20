@@ -1,10 +1,10 @@
 package org.s16a.mcas.worker;
-/*
+
 import com.clarifai.api.ClarifaiClient;
 import com.clarifai.api.RecognitionRequest;
 import com.clarifai.api.RecognitionResult;
 import com.clarifai.api.Tag;
-//*/
+
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -17,8 +17,54 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+public class ClarifaiWorker extends AbstractWorker {
+
+    public ClarifaiWorker() {
+        super(MCAS.clarifai);
+    }
+
+    @Override
+    protected void processData(String url) throws IOException {
+        // open model
+        Model model = ModelFactory.createDefaultModel();
+        String modelFileName = Hasher.getCacheFilename(url);
+        File f = new File(modelFileName);
+
+        if (f.exists()) {
+            model.read(modelFileName);
+        }
+
+        String dataFileName = Hasher.getCacheFilename(url) + ".data";
+
+        ClarifaiClient clarifai = new ClarifaiClient("T1p6TiGA5ybz8KkaWQmAR26kwWQRcUYV2d1LFVsl", "MpvrBCyR7XgeOPaKsXbBCaH_RbWitmKzBtPqD9Et");
+        List<RecognitionResult> results = clarifai.recognize(new RecognitionRequest(url));
+
+        Resource r = model.createResource();
+        for (Tag tag : results.get(0).getTags()) {
+            System.out.println(tag.getName() + ": " + tag.getProbability());
+            r.addLiteral(model.createProperty("http://ogp.mme/ns#tag:" + tag.getName()), tag.getProbability());
+        }
+        model.getResource(url).addProperty(MCAS.clarifai, r);
+
+        FileWriter out = new FileWriter(modelFileName);
+        try {
+            model.write(out, "TURTLE");
+        } finally {
+            try {
+                out.close();
+            } catch (IOException closeException) {
+                // ignore
+            }
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        AbstractWorker.startWorker(new ClarifaiWorker());
+    }
+}
+/*
 public class ClarifaiWorker {
-    /*
+
     private static final String TASK_QUEUE_NAME = MCAS.clarifai.toString();
 
     public static void main(String[] argv) throws Exception {
@@ -51,37 +97,7 @@ public class ClarifaiWorker {
 
     private static void extractClarifaiInfo(String url) throws IOException {
 
-        // open model
-        Model model = ModelFactory.createDefaultModel();
-        String modelFileName = Hasher.getCacheFilename(url);
-        File f = new File(modelFileName);
 
-        if (f.exists()) {
-            model.read(modelFileName);
-        }
-
-        String dataFileName = Hasher.getCacheFilename(url) + ".data";
-
-        ClarifaiClient clarifai = new ClarifaiClient("", "" /*API_KEY, API_SECRET*/ /*);
-        List<RecognitionResult> results = clarifai.recognize(new RecognitionRequest(url));
-
-        Resource r = model.createResource();
-        for (Tag tag : results.get(0).getTags()) {
-            System.out.println(tag.getName() + ": " + tag.getProbability());
-            r.addLiteral(model.createProperty("http://ogp.mme/ns#tag:" + tag.getName()), tag.getProbability());
-        }
-        model.getResource(url).addProperty(MCAS.clarifai, r);
-
-        FileWriter out = new FileWriter(modelFileName);
-        try {
-            model.write(out, "TURTLE");
-        } finally {
-            try {
-                out.close();
-            } catch (IOException closeException) {
-                // ignore
-            }
-        }
     }
-    //*/
 }
+//*/

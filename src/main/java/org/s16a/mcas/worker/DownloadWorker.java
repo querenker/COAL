@@ -20,7 +20,77 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Consumer;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import sun.print.DialogOwner;
 
+public class DownloadWorker extends AbstractWorker {
+
+	public DownloadWorker() {
+		super("download"); //es gibt leider kein MCAS.download, zählt wohl nicht als kompletter Worker
+	}
+
+	public static void main(String[] args) throws Exception {
+		AbstractWorker.startWorker(new DownloadWorker());
+	}
+
+	@Override
+	protected void processData(String url) throws IOException {
+		downloadAndUpdateModel(url);
+	}
+
+	private void downloadAndUpdateModel(String message) {
+		// open model
+		Model model = ModelFactory.createDefaultModel();
+		String modelFileName = Hasher.getCacheFilename(message);
+		File f = new File(modelFileName);
+
+		if (f.exists()) {
+			model.read(modelFileName);
+		}
+
+		String dataFileName = Hasher.getCacheFilename(message) + ".data";
+
+		try {
+			saveUrl(dataFileName, message);
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		try {
+			Enqueuer.enqueueAfterDownload(model, message, modelFileName, dataFileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+
+	private void saveUrl(final String filename, final String urlString)
+	        throws MalformedURLException, IOException {
+	    BufferedInputStream in = null;
+	    FileOutputStream fout = null;
+	    try {
+	        in = new BufferedInputStream(new URL(urlString).openStream());
+	        fout = new FileOutputStream(filename);
+
+	        final byte data[] = new byte[1024];
+	        int count;
+	        while ((count = in.read(data, 0, 1024)) != -1) {
+	            fout.write(data, 0, count);
+	        }
+	    } finally {
+	        if (in != null) {
+	            in.close();
+	        }
+	        if (fout != null) {
+	            fout.close();
+	        }
+	    }
+	}
+}
+
+/*
 public class DownloadWorker {
 	private static final String TASK_QUEUE_NAME = "download";
 
@@ -104,3 +174,4 @@ public class DownloadWorker {
 	    }
 	}
 }
+//*/
