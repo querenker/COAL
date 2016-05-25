@@ -1,4 +1,5 @@
 # COAL
+[![Build Status](https://travis-ci.com/querenker/COAL.svg?token=nVTvyvrsc5miEpbz31t1&branch=master)](https://travis-ci.com/querenker/COAL)
 
 ### ☃ Unicode snowman is here to make you happy! ☃
 
