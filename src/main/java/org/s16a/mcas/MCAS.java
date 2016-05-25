@@ -23,5 +23,6 @@ public class MCAS {
     public static final Property vcd = m_model.createProperty(  NS + "vcd" );    
     public static final Property ner = m_model.createProperty(  NS + "ner" );
     public static final Property clarifai = m_model.createProperty( NS + "clarifai" );
+    public static final Property pdfmetadataextraction = m_model.createProperty( NS + "pdfmetadataextraction" );
     
 }
