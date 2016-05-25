@@ -60,5 +60,29 @@ public abstract class AbstractWorker {
         channel.basicConsume(worker.TASK_QUEUE_NAME, false, consumer);
     }
 
+    public Model openModel(String modelFileName) {
+        Model model = ModelFactory.createDefaultModel();
+        File f = new File(modelFileName);
+
+        if (f.exists()) {
+            model.read(modelFileName);
+        }
+
+        return model;
+    }
+
+    public void writeModel(Model model, String modelFileName) throws IOException {
+        FileWriter out = new FileWriter(modelFileName);
+        try {
+            model.write(out, "TURTLE");
+        } finally {
+            try {
+                out.close();
+            } catch (IOException closeException) {
+                // ignore
+            }
+        }
+    }
+
     protected abstract void processData(String url) throws IOException;
 }

@@ -33,13 +33,8 @@ public class MediainfoWorker extends AbstractWorker {
 	@Override
 	protected void processData(String url) throws IOException { //ganz dreist aus extractMediainfo() kopiert
 		// open model
-		Model model = ModelFactory.createDefaultModel();
 		String modelFileName = Hasher.getCacheFilename(url);
-		File f = new File(modelFileName);
-
-		if (f.exists()) {
-			model.read(modelFileName);
-		}
+		Model model = openModel(modelFileName);
 
 		String dataFileName = Hasher.getCacheFilename(url) + ".data";
 
@@ -71,15 +66,6 @@ public class MediainfoWorker extends AbstractWorker {
 		r.addLiteral(model.createProperty("http://ogp.me/ns#image:width"), width);
 		model.getResource(url).addProperty(MCAS.mediainfo, r);
 
-		FileWriter out = new FileWriter(modelFileName);
-		try {
-			model.write(out, "TURTLE");
-		} finally {
-			try {
-				out.close();
-			} catch (IOException closeException) {
-				// ignore
-			}
-		}
+		writeModel(model, modelFileName);
 	}
 }
