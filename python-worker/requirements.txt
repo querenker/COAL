@@ -1,2 +1,4 @@
 pika
 rdflib
+Pillow
+git+git://github.com/Clarifai/clarifai-python.git

@@ -1,14 +1,6 @@
 import os
 import pika
 import rdflib
-import hashlib
-
-
-def get_cache_filename(url):
-    base_path = 'cache/'
-    base_ext = '.ttl'
-    hash_value = hashlib.pbkdf2_hmac('md5', url, 16)
-    return base_path + hash_value + base_ext
 
 
 class AbstractWorker():
@@ -20,16 +12,17 @@ class AbstractWorker():
                 pika.ConnectionParameters('localhost'))
         channel = connection.channel()
 
-        channel.queue_declare(queue=self.__class__.queue_name)
+        channel.queue_declare(queue=self.__class__.queue_name, durable=True)
         print(' [*] Waiting for messages. To exit press CTRL+C')
         # channel.basicQos(1)
 
         def callback(ch, method, properties, body):
             print(' [x] Received %r' % body)
-            self.processData(body)
+            self.process_data(body)
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
         channel.basic_consume(callback, queue=self.__class__.queue_name)
+        channel.start_consuming()
 
     def open_model(self, model_filename):
         model = rdflib.Graph()
