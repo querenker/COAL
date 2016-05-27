@@ -9,7 +9,8 @@ import java.net.URI;
 
 public class Main {
 
-	public static final String BASE_URI = "http://localhost:8080/myapp/";
+	//public static final String BASE_URI = "http://localhost:8080/myapp/";
+	public static final String BASE_URI = "http://0.0.0.0:8080/coal/";
 
 	public static HttpServer startServer() {
 		// create a resource config that scans for JAX-RS resources and
@@ -24,8 +25,8 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 		final HttpServer server = startServer();
-		System.out.println(String.format("Jersey app started with WADL available at " + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
-		System.in.read();
-		server.stop();
+		System.out.println(String.format("Jersey app started with WADL available at " + "%sapplication.wadl\n"/*"Hit enter to stop it..."*/, BASE_URI));
+		//System.in.read();
+		//server.stop();
 	}
 }
