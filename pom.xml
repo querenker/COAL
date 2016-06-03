@@ -120,15 +120,6 @@
 							<mainClass>org.s16a.mcas.worker.ClarifaiWorker</mainClass>
 						</configuration>
 					</execution>
-					<execution>
-						<id>pdfmetadataextractionworker</id>
-						<goals>
-							<goal>java</goal>
-						</goals>
-						<configuration>
-							<mainClass>org.s16a.mcas.worker.PdfMetadataExtractionWorker</mainClass>
-						</configuration>
-					</execution>
 				</executions>
 			</plugin>
 		</plugins>
