@@ -26,9 +26,8 @@ public class ClarifaiWorker extends AbstractWorker {
     @Override
     protected void processData(String url) throws IOException {
         // open model
-        String modelFileName = Hasher.getCacheFilename(url);
-        try { Thread.sleep(5000); } catch (InterruptedException ie) {}
-        Model model = openModel(modelFileName);
+        String modelFileName = getModelFileName(url);
+        Model model = getNewModel();
         String dataFileName = Hasher.getCacheFilename(url) + ".data";
 
         ClarifaiClient clarifai = new ClarifaiClient("T1p6TiGA5ybz8KkaWQmAR26kwWQRcUYV2d1LFVsl", "MpvrBCyR7XgeOPaKsXbBCaH_RbWitmKzBtPqD9Et");
@@ -41,7 +40,7 @@ public class ClarifaiWorker extends AbstractWorker {
         }
         model.getResource(url).addProperty(MCAS.clarifai, r);
 
-        writeModel(model, modelFileName);
+        writeAndMergeModel(model, modelFileName);
     }
 
     public static void main(String[] args) throws Exception {

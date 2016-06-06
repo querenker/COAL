@@ -60,12 +60,16 @@ public abstract class AbstractWorker {
         channel.basicConsume(worker.TASK_QUEUE_NAME, false, consumer);
     }
 
+    public Model getNewModel() {
+        return ModelFactory.createDefaultModel();
+    }
+
     public Model openModel(String modelFileName) {
         Model model = ModelFactory.createDefaultModel();
         File f = new File(modelFileName);
 
         if (f.exists()) {
-            model.read(modelFileName);
+            model.read(modelFileName, "TURTLE");
         }
 
         return model;
@@ -82,6 +86,26 @@ public abstract class AbstractWorker {
                 // ignore
             }
         }
+    }
+
+    public void writeAndMergeModel(Model model, String modelFileName) throws IOException {
+        writeModel(model, modelFileName);
+        try {
+            notifyUpdater(modelFileName);
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(42);
+        }
+    }
+
+    public void notifyUpdater(String filename) throws Exception {
+        Enqueuer.enqueueForMerge(filename);
+    }
+
+    public String getModelFileName(String url) {
+        return Hasher.getCacheFilename(url) + "." + TASK_QUEUE_NAME.substring(TASK_QUEUE_NAME.lastIndexOf('/')+1);
     }
 
     protected abstract void processData(String url) throws IOException;
