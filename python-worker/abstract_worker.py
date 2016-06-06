@@ -1,6 +1,7 @@
 import os
 import pika
 import rdflib
+from worker_util import get_cache_filename
 
 
 class AbstractWorker():
@@ -32,7 +33,7 @@ class AbstractWorker():
         channel.queue_declare(queue=queue_name)
 
         channel.basic_publish(exchange='',
-                              routing_key=queue_name
+                              routing_key=queue_name,
                               body=body)
 
         print(' [x] Sent %r' % body)
@@ -46,8 +47,20 @@ class AbstractWorker():
             model.parse(model_filename, format=model_format)
         return model
 
+    def notify_update(self, filename):
+        self.send_to_queue('update', filename)
+
     def write_model(self, model, model_filename):
         model.serialize(destination=model_filename, format='turtle')
 
-    def process_data(url):
+    def get_model_filname(self, url):
+        url = url.decode('utf-8')
+        queue_name_shortened = self.__class__.queue_name.split('/')[-1]
+        return get_cache_filename(url) + '.' + queue_name_shortened
+
+    def write_and_merge_model(self, model, filename):
+        self.write_model(model, filename)
+        self.notify_update(filename)
+
+    def process_data(self, url):
         pass
