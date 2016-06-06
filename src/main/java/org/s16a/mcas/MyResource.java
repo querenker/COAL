@@ -117,11 +117,13 @@ public class MyResource {
 		// get URLs headers
 		Map<String, List<String>> map = conn.getHeaderFields();
 		int MAX_CONTENT_LENGTH = 50000000; // ca. 50MB
-		Set<String> VALID_CONTENT_TYPES = new HashSet<String>(Arrays.asList("image/jpeg", "image/png"));
+		Set<String> VALID_CONTENT_TYPES = new HashSet<String>(Arrays.asList("image/jpeg", "image/png", "application/pdf"));
 
 		// TODO: this is just an example to accept jpeg images only
 		int contentLength = Integer.parseInt(map.get("Content-Length").get(0));
-		String contentType = map.get("Content-Type").get(0);
+		String contentType = map.get("Content-Type").get(0).split(";")[0];
+
+		System.out.println(contentType);
 
 		if (contentLength > MAX_CONTENT_LENGTH) {
 			throw new MCASException("content length exceeded");
