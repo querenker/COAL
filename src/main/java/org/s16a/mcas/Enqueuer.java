@@ -14,6 +14,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.MessageProperties;
 
+import org.s16a.mcas.worker.UpdateWorker;
+
 public class Enqueuer {
 
 	public static void enqueueAfterDownload(Model model, String url, String modelFileName, String dataFileName) throws Exception {
@@ -26,7 +28,7 @@ public class Enqueuer {
 
 		Map<String, List<Property>> analyses = new HashMap<String, List<Property>>();
 		analyses.put("image/jpeg", Arrays.asList(MCAS.mediainfo, MCAS.vcd, MCAS.clarifai));
-		analyses.put("image/png", Arrays.asList(MCAS.mediainfo));
+		analyses.put("image/png", Arrays.asList(MCAS.mediainfo, MCAS.clarifai));
 		analyses.put("text/plain", Arrays.asList(MCAS.ner));
 		analyses.put("application/pdf", Arrays.asList(MCAS.pdfmetadataextraction));
 
@@ -54,4 +56,16 @@ public class Enqueuer {
 
 	}
 
+	public static void enqueueForMerge(String filename) throws Exception {
+		String QUEUE_NAME = "update";
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setHost("localhost");
+		Connection connection = factory.newConnection();
+		Channel channel = connection.createChannel();
+		channel.queueDeclare(QUEUE_NAME, true, false, false, null);
+		String message = filename;
+		channel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
+		channel.close();
+		connection.close();
+	}
 }
