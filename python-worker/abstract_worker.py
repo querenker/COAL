@@ -24,6 +24,21 @@ class AbstractWorker():
         channel.basic_consume(callback, queue=self.__class__.queue_name)
         channel.start_consuming()
 
+    def send_to_queue(self, queue_name, body):
+        connection = pika.BlockingConnection(
+                pika.ConnectionParameters('localhost'))
+        channel = connection.channel()
+
+        channel.queue_declare(queue=queue_name)
+
+        channel.basic_publish(exchange='',
+                              routing_key=queue_name
+                              body=body)
+
+        print(' [x] Sent %r' % body)
+
+        connection.close()
+
     def open_model(self, model_filename):
         model = rdflib.Graph()
         if os.path.isfile(model_filename):
