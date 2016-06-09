@@ -28,6 +28,11 @@ class PdfTextFormattingWorker(AbstractWorker):
             output.write(dumps(document))
 
     def get_title(self, paragraph):
+        sentences = paragraph.split('\n')
+        if len(sentences) < 2:
+            return ''
+        elif len(sentences[0]) * 2 < len(sentences[1]):
+            return sentences[0]
         return ''
 
 if __name__ == '__main__':
