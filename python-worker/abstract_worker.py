@@ -30,7 +30,7 @@ class AbstractWorker():
                 pika.ConnectionParameters('localhost'))
         channel = connection.channel()
 
-        channel.queue_declare(queue=queue_name)
+        channel.queue_declare(queue=queue_name, durable=True)
 
         channel.basic_publish(exchange='',
                               routing_key=queue_name,
@@ -39,6 +39,9 @@ class AbstractWorker():
         print(' [x] Sent %r' % body)
 
         connection.close()
+
+    def get_new_model(self):
+        return rdflib.Graph()
 
     def open_model(self, model_filename):
         model = rdflib.Graph()
@@ -53,8 +56,8 @@ class AbstractWorker():
     def write_model(self, model, model_filename):
         model.serialize(destination=model_filename, format='turtle')
 
-    def get_model_filname(self, url):
-        url = url.decode('utf-8')
+    def get_model_filename(self, url):
+        # url = url.decode('utf-8')
         queue_name_shortened = self.__class__.queue_name.split('/')[-1]
         return get_cache_filename(url) + '.' + queue_name_shortened
 

@@ -1,6 +1,5 @@
 from abstract_worker import AbstractWorker
 from clarifai.client import ClarifaiApi
-from worker_util import get_cache_filename
 from rdflib import URIRef, Literal, Namespace, BNode
 
 
@@ -14,8 +13,8 @@ class ClarifaiWorker(AbstractWorker):
 
     def process_data(self, url):
         url = url.decode('utf-8')
-        model_filename = get_cache_filename(url)
-        model = self.open_model(model_filename)
+        model = self.get_new_model()
+        model_filename = self.get_model_filename(url)
 
         clarifai_api = ClarifaiApi()
         response = clarifai_api.tag_image_urls(url)
@@ -30,7 +29,7 @@ class ClarifaiWorker(AbstractWorker):
             print('Tag: ' + tag + ' Prob: ' + str(prob))
             model.add((tags, ogp + tag.replace(' ', '_'), Literal(prob)))
 
-        self.write_model(model, model_filename)
+        self.write_and_merge_model(model, model_filename)
 
 
 if __name__ == '__main__':
