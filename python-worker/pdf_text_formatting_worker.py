@@ -23,11 +23,13 @@ class PdfTextFormattingWorker(AbstractWorker):
                 paragraph_entry['content'] = content
                 document.append(paragraph_entry)
 
-        output_filename = filename '.json'
+        output_filename = filename + '.json'
         with open(output_filename, 'w') as output:
             output.write(dumps(document))
 
+    def get_title(self, paragraph):
+        return ''
 
 if __name__ == '__main__':
-    worker = PdfMetadataExtractionWorker()
+    worker = PdfTextFormattingWorker()
     worker.start_worker()

@@ -30,7 +30,7 @@ public class Enqueuer {
 		analyses.put("image/jpeg", Arrays.asList(MCAS.mediainfo, MCAS.vcd, MCAS.clarifai));
 		analyses.put("image/png", Arrays.asList(MCAS.mediainfo, MCAS.clarifai));
 		analyses.put("text/plain", Arrays.asList(MCAS.ner));
-		analyses.put("application/pdf", Arrays.asList(MCAS.pdfmetadataextraction));
+		analyses.put("application/pdf", Arrays.asList(MCAS.pdfmetadataextraction, MCAS.pdftextextraction));
 
 		// (1)
 		String mimetype = model.getResource(url).getProperty(DC.format).getString().split(";")[0];

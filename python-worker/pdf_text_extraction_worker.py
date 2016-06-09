@@ -21,5 +21,5 @@ class PdfTextExtractionWorker(AbstractWorker):
 
 
 if __name__ == '__main__':
-    worker = PdfMetadataExtractionWorker()
+    worker = PdfTextExtractionWorker()
     worker.start_worker()
