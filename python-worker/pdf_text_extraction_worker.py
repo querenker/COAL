@@ -12,12 +12,12 @@ class PdfTextExtractionWorker(AbstractWorker):
         url = url.decode('utf-8')
         model_filename = get_cache_filename(url)
         pdf_filename = model_filename + '.data'
-        text_filename = model_filename + '.txt'
+        text_filename = pdf_filename + '.txt'
 
         call(['pdftotext', pdf_filename, text_filename])
 
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextformatting',
-                           path.abspath(text_filename))
+                           url)
 
 
 if __name__ == '__main__':

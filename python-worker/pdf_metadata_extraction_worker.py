@@ -14,10 +14,10 @@ class PdfMetadataExtractionWorker(AbstractWorker):
 
     def process_data(self, url):
         url = url.decode('utf-8')
-        model_filename = get_cache_filename(url)
+        model_filename = self.get_model_filename(url)
         model = self.get_new_model()
 
-        data_filename = model_filename + '.data'
+        data_filename = get_cache_filename(url) + '.data'
 
         data_uri = URIRef(url)
         tags = BNode()
