@@ -31,7 +31,7 @@ class PdfTextLangdetectWorker(AbstractWorker):
 
         for language in langinfo.keys():
             percentage = langinfo[language] / total
-            if percentage >= 0.1:
+            if percentage >= 0.2:
                 print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
                 model.add((tags, ogp + language, Literal(langinfo[language] / total)))
 
