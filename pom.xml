@@ -120,6 +120,15 @@
 							<mainClass>org.s16a.mcas.worker.ClarifaiWorker</mainClass>
 						</configuration>
 					</execution>
+					<execution>
+						<id>updateworker</id>
+						<goals>
+							<goal>java</goal>
+						</goals>
+						<configuration>
+							<mainClass>org.s16a.mcas.worker.UpdateWorker</mainClass>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
 		</plugins>

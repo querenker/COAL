@@ -24,5 +24,6 @@ public class MCAS {
     public static final Property ner = m_model.createProperty(  NS + "ner" );
     public static final Property clarifai = m_model.createProperty( NS + "clarifai" );
     public static final Property pdfmetadataextraction = m_model.createProperty( NS + "pdfmetadataextraction" );
+    public static final Property pdftextextraction = m_model.createProperty( NS + "pdftextextraction" );
     
 }

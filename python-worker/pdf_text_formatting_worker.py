@@ -10,8 +10,10 @@ class PdfTextFormattingWorker(AbstractWorker):
     def process_data(self, url):
         url = url.decode('utf-8')
         filename = url
+        model_filename = get_cache_filename(url)
+        txt_filename = model_filename + '.data.txt'
         document = []
-        with open(filename, 'r') as text:
+        with open(txt_filename, 'r') as text:
             paragraphs = text.read().split('\n\n')
             for paragraph in paragraphs:
                 paragraph_entry = {}
@@ -23,11 +25,21 @@ class PdfTextFormattingWorker(AbstractWorker):
                 paragraph_entry['content'] = content
                 document.append(paragraph_entry)
 
-        output_filename = filename '.json'
+        output_filename = txt_filename + '.json'
         with open(output_filename, 'w') as output:
             output.write(dumps(document))
 
+        self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextlangdetect',
+                           url)
+
+    def get_title(self, paragraph):
+        sentences = paragraph.split('\n')
+        if len(sentences) < 2:
+            return ''
+        elif len(sentences[0]) * 2 < len(sentences[1]):
+            return sentences[0]
+        return ''
 
 if __name__ == '__main__':
-    worker = PdfMetadataExtractionWorker()
+    worker = PdfTextFormattingWorker()
     worker.start_worker()

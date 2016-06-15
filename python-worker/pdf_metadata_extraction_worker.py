@@ -14,10 +14,10 @@ class PdfMetadataExtractionWorker(AbstractWorker):
 
     def process_data(self, url):
         url = url.decode('utf-8')
-        model_filename = get_cache_filename(url)
-        model = self.open_model(model_filename)
+        model_filename = self.get_model_filename(url)
+        model = self.get_new_model()
 
-        data_filename = model_filename + '.data'
+        data_filename = get_cache_filename(url) + '.data'
 
         data_uri = URIRef(url)
         tags = BNode()
@@ -29,7 +29,7 @@ class PdfMetadataExtractionWorker(AbstractWorker):
             print('Key: ' + key + ' Value: ' + value)
             model.add((tags, ogp + key.replace(' ', '_'), Literal(value)))
 
-        self.write_model(model, model_filename)
+        self.write_and_merge_model(model, model_filename)
 
     def get_info_for_file(self, filepath):
         reader = PdfFileReader(open(filepath, 'rb'))
