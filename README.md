@@ -8,4 +8,4 @@ web media content analysis framework
 This is a SuperAmazingProject
 
 ## Coming Soon...
-![Buckbeak](https://media.giphy.com/media/6KRKpZAZK7THO/giphy.gif)
+![Fluffy](http://pa1.narvii.com/5914/bd6025761c9c5b17ebf6fb06d63da1c823bd3871_hq.gif)
