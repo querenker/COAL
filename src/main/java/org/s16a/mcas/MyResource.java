@@ -161,10 +161,15 @@ public class MyResource {
 		String contentType = map.get("Content-Type").get(0);
 
 		String identifier = filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf("."));
+
+		//final String NS = "http://purl.org/dc/elements/1.1/";
+		//final Resource NAMESPACE = model.createResource( NS );
+		final Property fileSize = model.createProperty( "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#filesize" );
+		final Property mimeType = model.createProperty( "http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#mimeType");
 		
 		someResource.addProperty(DC.identifier, identifier);
-		someResource.addLiteral(DC.format, contentType);
-		someResource.addLiteral(DCTerms.extent, contentLength);
+		someResource.addLiteral(mimeType, contentType);
+		someResource.addLiteral(fileSize, contentLength);
 		// TODO: put more info from Header into RDF
 		
 		FileWriter out = new FileWriter(filename);
