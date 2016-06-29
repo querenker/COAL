@@ -159,8 +159,10 @@ public class MyResource {
 
 		int contentLength = Integer.parseInt(map.get("Content-Length").get(0));
 		String contentType = map.get("Content-Type").get(0);
+
+		String identifier = filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf("."));
 		
-		someResource.addProperty(DC.identifier, filename);
+		someResource.addProperty(DC.identifier, identifier);
 		someResource.addLiteral(DC.format, contentType);
 		someResource.addLiteral(DCTerms.extent, contentLength);
 		// TODO: put more info from Header into RDF
