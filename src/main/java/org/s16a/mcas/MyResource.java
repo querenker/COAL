@@ -7,11 +7,7 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import javax.ws.rs.GET;
@@ -21,6 +17,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.hp.hpl.jena.sparql.vocabulary.FOAF;
+import com.hp.hpl.jena.vocabulary.RDF;
 import org.apache.commons.validator.routines.UrlValidator;
 
 import com.hp.hpl.jena.datatypes.RDFDatatype;
@@ -155,6 +153,16 @@ public class MyResource {
 
 	private Model createAndStoreBasicModel(URL url, String filename, Map<String, List<String>> map) throws IOException {
 		Model model = ModelFactory.createDefaultModel();
+
+		// TODO constant for server uri
+		Resource serverResource = model.createResource("http://aragog.blblblu.de:8080/coal/resource?url=" + url.toString());
+
+		final Property topic = model.createProperty("http://xmlns.com/foaf/0.1/");
+
+		serverResource.addProperty(RDF.type, FOAF.Document);
+		serverResource.addProperty(topic, url.toString());
+		serverResource.addLiteral(DCTerms.modified, Calendar.getInstance());
+
 		Resource someResource = model.createResource(url.toString());
 
 		int contentLength = Integer.parseInt(map.get("Content-Length").get(0));
@@ -162,10 +170,8 @@ public class MyResource {
 
 		String identifier = filename.substring(filename.lastIndexOf("/") + 1, filename.lastIndexOf("."));
 
-		//final String NS = "http://purl.org/dc/elements/1.1/";
-		//final Resource NAMESPACE = model.createResource( NS );
-		final Property fileSize = model.createProperty( "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#fileSize" );
-		final Property mimeType = model.createProperty( "http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#mimeType");
+		final Property fileSize = model.createProperty("http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#fileSize");
+		final Property mimeType = model.createProperty("http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#mimeType");
 		
 		someResource.addProperty(DC.identifier, identifier);
 		someResource.addLiteral(mimeType, contentType);
