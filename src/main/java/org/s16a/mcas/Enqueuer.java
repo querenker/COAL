@@ -32,10 +32,12 @@ public class Enqueuer {
 		analyses.put("text/plain", Arrays.asList(MCAS.ner));
 		analyses.put("application/pdf", Arrays.asList(MCAS.pdfmetadataextraction, MCAS.pdftextextraction));
 
-		// (1)
-		String mimetype = model.getResource(url).getProperty(DC.format).getString().split(";")[0];
+		final Property mimeType = model.createProperty("http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#mimeType");
 
-		for (Property analysis : analyses.get(mimetype)) {
+		// (1)
+		String wantedMimeType = model.getResource(url).getProperty(mimeType).getString().split(";")[0];
+
+		for (Property analysis : analyses.get(wantedMimeType)) {
 			if (model.getResource(url).getProperty(analysis) == null) {
 				System.out.println("enqueue for " + analysis.toString());
 								

@@ -156,7 +156,7 @@ public class MyResource {
 
 		// TODO constant for server uri
 		Resource serverResource = model.createResource("http://aragog.blblblu.de:8080/coal/resource?url=" + url.toString());
-		
+
 		serverResource.addProperty(RDF.type, FOAF.Document);
 		serverResource.addProperty(FOAF.topic, url.toString());
 		serverResource.addLiteral(DCTerms.modified, Calendar.getInstance());
