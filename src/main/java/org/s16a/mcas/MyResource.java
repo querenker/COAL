@@ -164,7 +164,7 @@ public class MyResource {
 
 		//final String NS = "http://purl.org/dc/elements/1.1/";
 		//final Resource NAMESPACE = model.createResource( NS );
-		final Property fileSize = model.createProperty( "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#filesize" );
+		final Property fileSize = model.createProperty( "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/#fileSize" );
 		final Property mimeType = model.createProperty( "http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#mimeType");
 		
 		someResource.addProperty(DC.identifier, identifier);
