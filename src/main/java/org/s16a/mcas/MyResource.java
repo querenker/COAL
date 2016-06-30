@@ -160,7 +160,7 @@ public class MyResource {
 		final Property type = model.createProperty("rdf:type");
 		final Property topic = model.createProperty("http://xmlns.com/foaf/0.1/");
 
-		serverResource.addProperty(type, FOAF.Document);
+		serverResource.addProperty(RDF.type, FOAF.Document);
 		serverResource.addProperty(topic, url.toString());
 		serverResource.addLiteral(DCTerms.modified, Calendar.getInstance());
 
