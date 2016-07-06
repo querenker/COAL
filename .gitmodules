@@ -1,0 +1,3 @@
+[submodule "RAKE"]
+	path = RAKE
+	url = git@github.com:querenker/RAKE.git
