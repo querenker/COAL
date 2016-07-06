@@ -8,6 +8,9 @@ class AbstractWorker():
 
     queue_name = None
 
+    def coal_server_uri():
+        return 'http://aragog.blblblu.de/coal/'
+
     def start_worker(self):
         connection = pika.BlockingConnection(
                 pika.ConnectionParameters('localhost'))

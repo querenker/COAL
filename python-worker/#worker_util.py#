@@ -11,7 +11,7 @@ def get_cache_filename(url):
     return base_path + hash.hexdigest()[:32] + base_ext
 
 
-# pdf date conversion code taken from http://stackoverflow.com/a/26796646
+# pdf date conversion code blatantly stolen from http://stackoverflow.com/a/26796646
 pdf_date_pattern = re.compile(''.join([
     r"(D:)?",
     r"(?P<year>\d\d\d\d)",
@@ -25,7 +25,7 @@ pdf_date_pattern = re.compile(''.join([
     r"'?(?P<tz_minute>\d\d)?'?"]))
 
 
-def pdf_transform_date(date_str):
+def transform_date(date_str):
     """
     Convert a pdf date such as "D:20120321183444+07'00'" into a usable datetime
     http://www.verypdf.com/pdfinfoeditor/pdf-date-format.htm
@@ -38,7 +38,7 @@ def pdf_transform_date(date_str):
     if match:
         date_info = match.groupdict()
 
-        for k, v in date_info.items():  # transform values
+        for k, v in date_info.iteritems():  # transform values
             if v is None:
                 pass
             elif k == 'tz_offset':

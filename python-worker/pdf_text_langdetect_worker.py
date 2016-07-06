@@ -2,11 +2,9 @@ from abstract_worker import AbstractWorker
 from json import loads
 from langdetect import detect, detect_langs, lang_detect_exception
 from rdflib import URIRef, Literal, Namespace, BNode
+from rdflib.namespace import RDF, XSD
 from worker_util import get_cache_filename
-
-
-ogp = URIRef('http://ogp.me/ns#language:')
-mcas = Namespace('http://s16a/vocab/mcas/1.0/')
+import namespaces
 
 
 class PdfTextLangdetectWorker(AbstractWorker):
@@ -24,7 +22,7 @@ class PdfTextLangdetectWorker(AbstractWorker):
         data_uri = URIRef(url)
         tags = BNode()
 
-        model.add((data_uri, mcas.pdftextlangdetect, tags))
+        # model.add((BNode(), namespaces.mcas.pdftextlangdetect, tags))
 
         with open(json_filename, 'r') as json_file:
             langinfo, total = self.get_language_info(loads(json_file.read()))
@@ -33,7 +31,13 @@ class PdfTextLangdetectWorker(AbstractWorker):
             percentage = langinfo[language] / total
             if percentage >= 0.2:
                 print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
-                model.add((tags, ogp + language, Literal(langinfo[language] / total)))
+                # model.add((tags, namespaces.dcterms.language, Literal(langinfo[language] / total)))
+                annotationNode = BNode()
+                model.add((annotationNode, RDF.type, namespaces.oa.Annotation))
+                model.add((annotationNode, namespaces.oa.hasTarget, URIRef(url)))
+                model.add((annotationNode, namespaces.oa.hasBody, Literal(language, datatype=XSD.string)))
+                model.add((annotationNode, namespaces.oa.annotatedBy, Literal('LangDetect', datatype=XSD.string)))
+                
 
         self.write_and_merge_model(model, model_filename)
 

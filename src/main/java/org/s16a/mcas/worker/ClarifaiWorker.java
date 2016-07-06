@@ -30,7 +30,7 @@ public class ClarifaiWorker extends AbstractWorker {
         Model model = getNewModel();
         String dataFileName = Hasher.getCacheFilename(url) + ".data";
 
-        ClarifaiClient clarifai = new ClarifaiClient("T1p6TiGA5ybz8KkaWQmAR26kwWQRcUYV2d1LFVsl", "MpvrBCyR7XgeOPaKsXbBCaH_RbWitmKzBtPqD9Et");
+        ClarifaiClient clarifai = new ClarifaiClient("appId", "appSecret");
         List<RecognitionResult> results = clarifai.recognize(new RecognitionRequest(url));
 
         Resource r = model.createResource();
