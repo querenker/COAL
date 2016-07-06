@@ -2,7 +2,7 @@ from abstract_worker import AbstractWorker
 from PyPDF2 import PdfFileReader
 from worker_util import get_cache_filename, pdf_transform_date
 from rdflib import URIRef, Literal, BNode
-from rdflib.namespace import XSD
+from rdflib.namespace import XSD, DCTERMS
 import namespaces
 
 
@@ -45,11 +45,12 @@ class PdfMetadataExtractionWorker(AbstractWorker):
 
     def get_property_for_key(key):
         mapping = {
-            '/Author': namespaces.dcterms.creator,
-            '/CreationDate': namespaces.dcterms.created,
-            '/ModDate': namespaces.dcterms.modified,
-            '/Subject': namespaces.dcterms.subject,
-            '/Title': namespaces.dcterms.title
+            '/Author': DCTERMS.creator,
+            '/CreationDate': DCTERMS.created,
+            # '/Keywords': namespaces.dcterms.loremipsum,
+            '/ModDate': DCTERMS.modified,
+            '/Subject': DCTERMS.subject,
+            '/Title': DCTERMS.title
         }
         return mapping.get(key)
 
