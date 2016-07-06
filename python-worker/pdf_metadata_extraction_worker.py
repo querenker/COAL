@@ -27,7 +27,10 @@ class PdfMetadataExtractionWorker(AbstractWorker):
             print('Key: ' + key + ' Value: ' + value)
             property = self.__class__.get_property_for_key(key)
             if property:
-                model.add((tags, property, Literal(value, datatype=XSD.string)))
+                if 'Date' in key:
+                    model.add((tags, property, Literal(pdf_transform_date(value), datatype=XSD.date)))
+                else:
+                    model.add((tags, property, Literal(value, datatype=XSD.string)))
 
         self.write_and_merge_model(model, model_filename)
 

@@ -38,7 +38,7 @@ def pdf_transform_date(date_str):
     if match:
         date_info = match.groupdict()
 
-        for k, v in date_info.iteritems():  # transform values
+        for k, v in date_info.items():  # transform values
             if v is None:
                 pass
             elif k == 'tz_offset':
