@@ -39,7 +39,7 @@ class PdfTextLangdetectWorker(AbstractWorker):
                 model.add((annotationNode, namespaces.oa.hasTarget, URIRef(url)))
                 model.add((annotationNode, namespaces.oa.hasBody, Literal(language, datatype=XSD.string)))
                 model.add((annotationNode, namespaces.oa.annotatedBy, Literal('LangDetect', datatype=XSD.string)))
-                
+
 
         self.write_and_merge_model(model, model_filename)
 

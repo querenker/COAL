@@ -20,9 +20,8 @@ class PdfMetadataExtractionWorker(AbstractWorker):
         data_filename = get_cache_filename(url) + '.data'
 
         data_uri = URIRef(url)
-        tags = BNode()
-
-        model.add((data_uri, namespaces.mcas.pdfmetadataextraction, tags))
+        # tags = BNode()
+        # model.add((data_uri, namespaces.mcas.pdfmetadataextraction, tags))
 
         info = self.__class__.get_info_for_file(data_filename)
         for key, value in info:
@@ -30,9 +29,9 @@ class PdfMetadataExtractionWorker(AbstractWorker):
             property = self.__class__.get_property_for_key(key)
             if property:
                 if 'Date' in key:
-                    model.add((tags, property, Literal(pdf_transform_date(value), datatype=XSD.date)))
+                    model.add((data_uri, property, Literal(pdf_transform_date(value), datatype=XSD.date)))
                 else:
-                    model.add((tags, property, Literal(value, datatype=XSD.string)))
+                    model.add((data_uri, property, Literal(value, datatype=XSD.string)))
 
         self.write_and_merge_model(model, model_filename)
 
