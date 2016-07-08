@@ -1,5 +1,6 @@
 from abstract_worker import AbstractWorker
 from json import dumps
+import nltk
 from worker_util import get_cache_filename
 
 
@@ -19,9 +20,7 @@ class PdfTextFormattingWorker(AbstractWorker):
                 paragraph_entry = {}
                 title = self.get_title(paragraph)
                 paragraph_entry['title'] = title
-                content = (paragraph[len(title) + 1:] if title != '' else paragraph).replace('\n', ' ').split('. ')
-                for sententce_index in range(len(content) - 1):
-                    content[sententce_index] += '.'
+                content = nltk.sent_tokenize((paragraph[len(title) + 1:] if title != '' else paragraph))
                 paragraph_entry['content'] = content
                 document.append(paragraph_entry)
 
