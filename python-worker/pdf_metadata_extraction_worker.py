@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from abstract_worker import AbstractWorker
 from PyPDF2 import PdfFileReader
 from worker_util import get_cache_filename, pdf_transform_date

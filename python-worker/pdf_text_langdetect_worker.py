@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from abstract_worker import AbstractWorker
 from json import loads
 from langdetect import detect, detect_langs, lang_detect_exception

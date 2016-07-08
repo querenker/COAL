@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from abstract_worker import AbstractWorker
 from json import dumps
 import nltk

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from abstract_worker import AbstractWorker
 from clarifai.client import ClarifaiApi
 from rdflib import URIRef, Literal, Namespace, BNode

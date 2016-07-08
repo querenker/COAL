@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from abstract_worker import AbstractWorker
 from os import path
 from subprocess import call
