@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import namespaces
 from abstract_worker import AbstractWorker
 from json import loads
 from langdetect import detect, lang_detect_exception
@@ -30,6 +31,7 @@ class PdfTextLangdetectWorker(AbstractWorker):
                 print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
                 # model.add((tags, namespaces.dcterms.language, Literal(langinfo[language] / total)))
                 create_annotation_for_model(model,
+                                            (namespaces.oa.something, Literal('stuff', datatype=XSD.string)),
                                             target=URIRef(url),
                                             body=Literal(language, datatype=XSD.string),
                                             annotator=Literal('LangDetect', datatype=XSD.string))
