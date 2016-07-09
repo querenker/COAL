@@ -3,7 +3,10 @@
 import hashlib
 import datetime
 import re
+import namespaces
 from dateutil.tz import tzutc, tzoffset
+from rdflib import BNode, RDF
+
 
 def get_cache_filename(url):
     base_path = 'cache/'
@@ -11,6 +14,15 @@ def get_cache_filename(url):
     hash = hashlib.md5()
     hash.update(url.encode('utf-8'))
     return base_path + hash.hexdigest()[:32] + base_ext
+
+
+def create_annotation_for_model(model, target, body, annotator=None):
+    annotationNode = BNode()
+    model.add((annotationNode, RDF.type, namespaces.oa.Annotation))
+    model.add((annotationNode, namespaces.oa.hasTarget, target))
+    model.add((annotationNode, namespaces.oa.hasBody, body))
+    if annotator:
+        model.add((annotationNode, namespaces.oa.annotatedBy, annotator))
 
 
 # pdf date conversion code taken from http://stackoverflow.com/a/26796646

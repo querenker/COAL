@@ -2,11 +2,10 @@
 
 from abstract_worker import AbstractWorker
 from json import loads
-from langdetect import detect, detect_langs, lang_detect_exception
-from rdflib import URIRef, Literal, Namespace, BNode
-from rdflib.namespace import RDF, XSD
-from worker_util import get_cache_filename
-import namespaces
+from langdetect import detect, lang_detect_exception
+from rdflib import URIRef, Literal
+from rdflib.namespace import XSD
+from worker_util import get_cache_filename, create_annotation_for_model
 
 
 class PdfTextLangdetectWorker(AbstractWorker):
@@ -15,14 +14,10 @@ class PdfTextLangdetectWorker(AbstractWorker):
 
     def process_data(self, url):
         url = url.decode('utf-8')
-        filename = url
         model_filename = get_cache_filename(url)
         json_filename = model_filename + '.data.txt.json'
         model = self.get_new_model()
         model_filename = self.get_model_filename(url)
-
-        data_uri = URIRef(url)
-        tags = BNode()
 
         # model.add((BNode(), namespaces.mcas.pdftextlangdetect, tags))
 
@@ -34,12 +29,10 @@ class PdfTextLangdetectWorker(AbstractWorker):
             if percentage >= 0.2:
                 print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
                 # model.add((tags, namespaces.dcterms.language, Literal(langinfo[language] / total)))
-                annotationNode = BNode()
-                model.add((annotationNode, RDF.type, namespaces.oa.Annotation))
-                model.add((annotationNode, namespaces.oa.hasTarget, URIRef(url)))
-                model.add((annotationNode, namespaces.oa.hasBody, Literal(language, datatype=XSD.string)))
-                model.add((annotationNode, namespaces.oa.annotatedBy, Literal('LangDetect', datatype=XSD.string)))
-
+                create_annotation_for_model(model,
+                                            target=URIRef(url),
+                                            body=Literal(language, datatype=XSD.string),
+                                            annotator=Literal('LangDetect', datatype=XSD.string))
 
         self.write_and_merge_model(model, model_filename)
 
