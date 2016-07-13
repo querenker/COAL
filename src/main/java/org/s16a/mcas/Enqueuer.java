@@ -8,6 +8,7 @@ import java.util.Map;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.vocabulary.DC;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -30,12 +31,13 @@ public class Enqueuer {
 		analyses.put("image/jpeg", Arrays.asList(MCAS.mediainfo, MCAS.vcd, MCAS.clarifai));
 		analyses.put("image/png", Arrays.asList(MCAS.mediainfo, MCAS.clarifai));
 		analyses.put("text/plain", Arrays.asList(MCAS.ner));
-		analyses.put("application/pdf", Arrays.asList(MCAS.pdfmetadataextraction, MCAS.pdftextextraction));
+		analyses.put("application/pdf", Arrays.asList(MCAS.pdfmetadataextraction, MCAS.pdftextextraction, MCAS.pdfimageextraction));//
 
 		final Property mimeType = model.createProperty("http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#mimeType");
 
 		// (1)
-		String wantedMimeType = model.getResource(url).getProperty(mimeType).getString().split(";")[0];
+		Statement s = model.getResource(url).getProperty(mimeType);
+		String wantedMimeType = s.getString().split(";")[0];
 
 		for (Property analysis : analyses.get(wantedMimeType)) {
 			if (model.getResource(url).getProperty(analysis) == null) {
@@ -49,7 +51,7 @@ public class Enqueuer {
 				channel.queueDeclare(QUEUE_NAME, true, false, false, null);
 				String message = url;
 				channel.basicPublish("", QUEUE_NAME, MessageProperties.PERSISTENT_TEXT_PLAIN, message.getBytes());
-				//System.out.println(" [x] Sent '" + message + "'");
+				System.out.println(" [x] Sent '" + message + "'");
 				channel.close();
 				connection.close();
 			}			
