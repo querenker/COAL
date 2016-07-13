@@ -4,7 +4,7 @@ import namespaces
 from abstract_worker import AbstractWorker
 import operator
 from os import path
-from worker_util import get_cache_filename, create_annotation_for_model
+from worker_util import create_annotation, get_cache_filename
 from RAKE import rake
 from rdflib import URIRef, Literal
 from rdflib.namespace import XSD
@@ -18,12 +18,12 @@ class PdfTextKeywordExtractionWorker(AbstractWorker):
 
     def process_data(self, url):
         url = url.decode('utf-8')
-        model = self.get_new_model()
-        model_filename = get_cache_filename(url)
-        pdf_filename = model_filename + '.data'
+        annotations = self.get_new_model()
+        annotations_filename = self.get_model_filename(url)
+        pdf_filename = get_cache_filename(url) + '.data'
         text_filename = pdf_filename + '.txt'
 
-        with open(text_filename) as file:
+        with open(text_filename, encoding='ISO-8859-1') as file:
             text = file.read().replace('\n', ' ')
 
         sentence_list = rake.split_sentences(text) # TODO: probably smarter by using nltk / json sentence list?
@@ -35,13 +35,15 @@ class PdfTextKeywordExtractionWorker(AbstractWorker):
         sorted_keywords = sorted(keyword_candidates.items(), key=operator.itemgetter(1), reverse=True)
         total_keywords = len(sorted_keywords)
         # print(sorted_keywords[0:(total_keywords // 3)])
+
         for keyword, score in sorted_keywords[0:min(total_keywords // 3, max_keywords_per_file)]:
-            create_annotation_for_model(model,
-                                        (namespaces.oa.score, Literal(score, datatype=XSD.decimal)),
-                                        target=URIRef(url),
-                                        body=Literal(keyword, datatype=XSD.string),
-                                        annotator=Literal('RAKE', datatype=XSD.string))
-        self.write_and_merge_model(model, model_filename)
+            annotation = create_annotation((namespaces.oa.score, Literal(score, datatype=XSD.decimal)),
+                                            target=URIRef(url),
+                                            body=Literal(keyword, datatype=XSD.string),
+                                            annotator=Literal('RAKE', datatype=XSD.string))
+            annotations += annotation
+
+        self.write_and_merge_model(annotations, annotations_filename)
 
 
 
