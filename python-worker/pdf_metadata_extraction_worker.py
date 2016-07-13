@@ -2,7 +2,7 @@
 
 from abstract_worker import AbstractWorker
 from PyPDF2 import PdfFileReader
-from worker_util import get_cache_filename, pdf_transform_date
+from worker_util import get_cache_filename, pdf_transform_date, create_annotation_for_model
 from rdflib import URIRef, Literal, BNode
 from rdflib.namespace import XSD, DCTERMS
 import namespaces
@@ -32,6 +32,12 @@ class PdfMetadataExtractionWorker(AbstractWorker):
                     model.add((data_uri, property, Literal(pdf_transform_date(value), datatype=XSD.date)))
                 else:
                     model.add((data_uri, property, Literal(value, datatype=XSD.string)))
+            elif key == '/Keywords':
+                create_annotation_for_model(model,
+                                            # (namespaces.oa.percentage, Literal(langinfo[language] / total, datatype=XSD.decimal)),
+                                            target=URIRef(url),
+                                            body=Literal(value, datatype=XSD.string),
+                                            annotator=Literal('PdfMetadata', datatype=XSD.string))
 
         self.write_and_merge_model(model, model_filename)
 
@@ -42,6 +48,7 @@ class PdfMetadataExtractionWorker(AbstractWorker):
         for key in info:
             if info[key]:
                 out.append((key, info[key]))
+
         return out
 
     def get_property_for_key(key):

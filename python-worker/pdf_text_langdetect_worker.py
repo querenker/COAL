@@ -31,7 +31,7 @@ class PdfTextLangdetectWorker(AbstractWorker):
                 print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
                 # model.add((tags, namespaces.dcterms.language, Literal(langinfo[language] / total)))
                 create_annotation_for_model(model,
-                                            (namespaces.oa.something, Literal('stuff', datatype=XSD.string)),
+                                            (namespaces.oa.percentage, Literal(langinfo[language] / total, datatype=XSD.decimal)),
                                             target=URIRef(url),
                                             body=Literal(language, datatype=XSD.string),
                                             annotator=Literal('LangDetect', datatype=XSD.string))

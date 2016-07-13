@@ -15,7 +15,7 @@ class PdfTextFormattingWorker(AbstractWorker):
         model_filename = get_cache_filename(url)
         txt_filename = model_filename + '.data.txt'
         document = []
-        with open(txt_filename, 'r', encoding='ISO-8859-1') as text:
+        with open(txt_filename, 'r', encoding='UTF-8') as text:
             paragraphs = text.read().split('\n\n')
             for paragraph in paragraphs:
                 paragraph_entry = {}
@@ -26,7 +26,7 @@ class PdfTextFormattingWorker(AbstractWorker):
                 document.append(paragraph_entry)
 
         output_filename = txt_filename + '.json'
-        with open(output_filename, 'w') as output:
+        with open(output_filename, 'w', encoding='UTF-8') as output:
             output.write(dumps(document))
 
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextlangdetect',

@@ -3,7 +3,9 @@
 from abstract_worker import AbstractWorker
 from os import path
 from subprocess import call
-from worker_util import get_cache_filename
+from worker_util import get_cache_filename, create_annotation_for_model
+from rdflib import URIRef, Literal
+from rdflib.namespace import XSD
 
 
 class PdfTextExtractionWorker(AbstractWorker):
@@ -12,11 +14,24 @@ class PdfTextExtractionWorker(AbstractWorker):
 
     def process_data(self, url):
         url = url.decode('utf-8')
+        model = self.get_new_model()
         model_filename = get_cache_filename(url)
         pdf_filename = model_filename + '.data'
         text_filename = pdf_filename + '.txt'
 
         call(['pdftotext', pdf_filename, text_filename])
+        
+        with open(text_filename, 'r', encoding='UTF-8') as file:
+            text = file.read()
+
+        create_annotation_for_model(model,
+                                    # (namespaces.oa.percentage, Literal(langinfo[language] / total, datatype=XSD.decimal)),
+                                    target=URIRef(url),
+                                    body=Literal(text, datatype=XSD.string),
+                                    annotator=Literal('TextExtraction', datatype=XSD.string))
+
+        self.write_and_merge_model(model, model_filename)
+
 
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextformatting',
                            url)

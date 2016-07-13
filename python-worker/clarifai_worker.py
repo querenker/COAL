@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+import namespaces
 from abstract_worker import AbstractWorker
 from clarifai.client import ClarifaiApi
-from rdflib import URIRef, Literal, Namespace, BNode
+from rdflib import URIRef, Literal, Namespace, BNode, XSD
+from worker_util import create_annotation_for_model
 
 
 ogp = URIRef('http://ogp.me/ns#tag:')
@@ -29,7 +31,13 @@ class ClarifaiWorker(AbstractWorker):
         result = response['results'][0]['result']['tag']
         for tag, prob in zip(result['classes'], result['probs']):
             print('Tag: ' + tag + ' Prob: ' + str(prob))
-            model.add((tags, ogp + tag.replace(' ', '_'), Literal(prob)))
+            # model.add((tags, ogp + tag.replace(' ', '_'), Literal(prob)))
+            create_annotation_for_model(model,
+                                        (namespaces.oa.confidence, Literal(prob, datatype=XSD.decimal)),
+                                        target=URIRef(url),
+                                        body=Literal(tag, datatype=XSD.string),
+                                        annotator=Literal('Clarif.ai', datatype=XSD.string))
+
 
         self.write_and_merge_model(model, model_filename)
 
