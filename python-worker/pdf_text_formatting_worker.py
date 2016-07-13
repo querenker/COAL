@@ -15,7 +15,7 @@ class PdfTextFormattingWorker(AbstractWorker):
         model_filename = get_cache_filename(url)
         txt_filename = model_filename + '.data.txt'
         document = []
-        with open(txt_filename, 'r', encoding='UTF-8') as text:
+        with open(txt_filename, 'r', encoding='ISO-8859-1') as text:
             paragraphs = text.read().split('\n\n')
             for paragraph in paragraphs:
                 paragraph_entry = {}

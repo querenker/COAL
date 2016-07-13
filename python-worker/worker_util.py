@@ -5,7 +5,7 @@ import datetime
 import re
 import namespaces
 from dateutil.tz import tzutc, tzoffset
-from rdflib import BNode, RDF
+from rdflib import BNode, RDF, Graph
 
 
 def get_cache_filename(url):
@@ -16,7 +16,8 @@ def get_cache_filename(url):
     return base_path + hash.hexdigest()[:32] + base_ext
 
 
-def create_annotation_for_model(model, *custom_properties, target, body, annotator):
+def create_annotation(*custom_properties, target, body, annotator):
+    model = Graph() 
     annotationNode = BNode()
     model.add((annotationNode, RDF.type, namespaces.oa.Annotation))
     model.add((annotationNode, namespaces.oa.hasTarget, target))
@@ -24,6 +25,7 @@ def create_annotation_for_model(model, *custom_properties, target, body, annotat
     model.add((annotationNode, namespaces.oa.annotatedBy, annotator))
     for rdf_property in custom_properties:
         model.add((annotationNode, rdf_property[0], rdf_property[1]))
+    return model
 
 # pdf date conversion code taken from http://stackoverflow.com/a/26796646
 pdf_date_pattern = re.compile(''.join([

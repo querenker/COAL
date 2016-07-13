@@ -6,7 +6,7 @@ from json import loads
 from langdetect import detect, lang_detect_exception
 from rdflib import URIRef, Literal
 from rdflib.namespace import XSD
-from worker_util import get_cache_filename, create_annotation_for_model
+from worker_util import get_cache_filename, create_annotation
 
 
 class PdfTextLangdetectWorker(AbstractWorker):
@@ -17,8 +17,8 @@ class PdfTextLangdetectWorker(AbstractWorker):
         url = url.decode('utf-8')
         model_filename = get_cache_filename(url)
         json_filename = model_filename + '.data.txt.json'
-        model = self.get_new_model()
-        model_filename = self.get_model_filename(url)
+        annotation_filename = self.get_model_filename(url)
+        annotations = self.get_new_model()
 
         # model.add((BNode(), namespaces.mcas.pdftextlangdetect, tags))
 
@@ -30,13 +30,14 @@ class PdfTextLangdetectWorker(AbstractWorker):
             if percentage >= 0.2:
                 print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
                 # model.add((tags, namespaces.dcterms.language, Literal(langinfo[language] / total)))
-                create_annotation_for_model(model,
+                annotation = create_annotation(
                                             (namespaces.oa.percentage, Literal(langinfo[language] / total, datatype=XSD.decimal)),
                                             target=URIRef(url),
                                             body=Literal(language, datatype=XSD.string),
                                             annotator=Literal('LangDetect', datatype=XSD.string))
+                annotations += annotation
 
-        self.write_and_merge_model(model, model_filename)
+        self.write_and_merge_model(annotations, annotation_filename)
 
     def get_language_info(self, text_dict):
         langinfo = {}
