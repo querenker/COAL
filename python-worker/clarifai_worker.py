@@ -3,8 +3,8 @@
 import namespaces
 from abstract_worker import AbstractWorker
 from clarifai.client import ClarifaiApi
-from rdflib import URIRef, Literal, Namespace, BNode, XSD
-from worker_util import create_annotation_for_model
+from rdflib import URIRef, Literal, Namespace, XSD
+from worker_util import create_annotation
 
 
 ogp = URIRef('http://ogp.me/ns#tag:')
@@ -17,29 +17,25 @@ class ClarifaiWorker(AbstractWorker):
 
     def process_data(self, url):
         url = url.decode('utf-8')
-        model = self.get_new_model()
-        model_filename = self.get_model_filename(url)
+        annotations_filename = self.get_model_filename(url)
 
         clarifai_api = ClarifaiApi()
         response = clarifai_api.tag_image_urls(url)
 
-        data_uri = URIRef(url)
-        tags = BNode()
-
-        model.add((data_uri, mcas.clarifai, tags))
+        annotations = self.get_new_model()
 
         result = response['results'][0]['result']['tag']
         for tag, prob in zip(result['classes'], result['probs']):
             print('Tag: ' + tag + ' Prob: ' + str(prob))
             # model.add((tags, ogp + tag.replace(' ', '_'), Literal(prob)))
-            create_annotation_for_model(model,
+            annotation = create_annotation(
                                         (namespaces.oa.confidence, Literal(prob, datatype=XSD.decimal)),
                                         target=URIRef(url),
                                         body=Literal(tag, datatype=XSD.string),
                                         annotator=Literal('Clarif.ai', datatype=XSD.string))
 
-
-        self.write_and_merge_model(model, model_filename)
+        annotations += annotation
+        self.write_and_merge_model(annotations, annotations_filename)
 
 
 if __name__ == '__main__':
