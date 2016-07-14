@@ -19,9 +19,11 @@ class PdfTextExtractionWorker(AbstractWorker):
         pdf_filename = model_filename + '.data'
         text_filename = pdf_filename + '.txt'
 
+        data_uri = URIRef(url)
+
         call(['pdftotext', pdf_filename, text_filename])
         
-        with open(text_filename, 'r', encoding='ISO-8859-1') as file:
+        with open(text_filename, 'r', encoding='UTF-8') as file:
             text = file.read()
 
         # create_annotation_for_model(model,
@@ -31,8 +33,10 @@ class PdfTextExtractionWorker(AbstractWorker):
                                     # annotator=Literal('TextExtraction', datatype=XSD.string))
 
         # self.write_and_merge_model(model, model_filename)
-
-
+        
+        model.add((data_uri, namespaces.oa.fulltext, Literal(text, datatype=XSD.string)))
+        write_and_merge_model(model, model_filename)
+                   
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextformatting',
                            url)
         self.send_to_queue(
