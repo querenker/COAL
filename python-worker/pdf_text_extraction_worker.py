@@ -16,6 +16,7 @@ class PdfTextExtractionWorker(AbstractWorker):
         url = url.decode('utf-8')
         model = self.get_new_model()
         model_filename = get_cache_filename(url)
+        model_worker_filename = self.get_model_filename()
         pdf_filename = model_filename + '.data'
         text_filename = pdf_filename + '.txt'
 
@@ -35,7 +36,7 @@ class PdfTextExtractionWorker(AbstractWorker):
         # self.write_and_merge_model(model, model_filename)
         
         model.add((data_uri, namespaces.oa.fulltext, Literal(text, datatype=XSD.string)))
-        write_and_merge_model(model, model_filename)
+        write_and_merge_model(model, model_worker_filename)
                    
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextformatting',
                            url)
