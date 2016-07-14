@@ -6,6 +6,7 @@ from subprocess import call
 from worker_util import get_cache_filename, create_annotation
 from rdflib import URIRef, Literal
 from rdflib.namespace import XSD
+import namespaces
 
 
 class PdfTextExtractionWorker(AbstractWorker):
