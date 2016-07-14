@@ -16,7 +16,7 @@ class PdfTextExtractionWorker(AbstractWorker):
         url = url.decode('utf-8')
         model = self.get_new_model()
         model_filename = get_cache_filename(url)
-        model_worker_filename = self.get_model_filename()
+        model_worker_filename = self.get_model_filename(url)
         pdf_filename = model_filename + '.data'
         text_filename = pdf_filename + '.txt'
 
