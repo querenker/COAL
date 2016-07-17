@@ -41,6 +41,8 @@ class PdfTextExtractionWorker(AbstractWorker):
                    
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextformatting',
                            url)
+        self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdfauthorextraction',
+                           url)
         self.send_to_queue(
                 'http://s16a.org/vocab/mcas/1.0/pdftextkeywordextraction',
                 url)
