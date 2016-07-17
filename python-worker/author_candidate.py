@@ -7,6 +7,7 @@ class AuthorCandidate:
                  stop_word_confidence = 0,
                  author_list_confidence = 0,
                  known_name_confidence = 0,
+                 known_title_confidence = 0,
                  name_pattern_confidence = 0,
                  name_word_count_confidence = 0,
                  digit_word_count_confidence = 0):
@@ -15,6 +16,7 @@ class AuthorCandidate:
         self.stop_word_confidence = stop_word_confidence
         self.author_list_confidence = author_list_confidence
         self.known_name_confidence = known_name_confidence
+        self.known_title_confidence = known_title_confidence
         self.name_pattern_confidence = name_pattern_confidence
         self.name_word_count_confidence = name_word_count_confidence
         self.digit_word_count_confidence = digit_word_count_confidence
@@ -23,6 +25,7 @@ class AuthorCandidate:
         return (self.stop_word_confidence * 10) \
             + (self.author_list_confidence * 0) \
             + (self.known_name_confidence * 4) \
+            + (self.known_title_confidence * 4) \
             + (self.name_pattern_confidence * 2) \
             + (self.name_word_count_confidence * 1) \
             + (self.digit_word_count_confidence * 1)
@@ -35,6 +38,7 @@ class AuthorCandidate:
         self.calculate_author_list_confidence()
         self.calculate_author_pattern_confidence()
         self.calculate_known_name_confidence(first_names)
+        self.calculate_known_title_confidence()
         self.calculate_name_word_count_confidence()
         self.calculate_digit_word_count_confidence()
     
@@ -64,6 +68,15 @@ class AuthorCandidate:
                     self.known_name_confidence += 1
                 elif word.strip().casefold() in first_names:
                     self.known_name_confidence += 1
+                    
+    def calculate_known_title_confidence(self):
+        'based on whether or not the candidate includes an entry from a list of known titles, like Dr., or Prof.'
+        # remove digits and split at commas and 'and's
+        self.known_title_confidence = 0
+        known_titles = {'dr.', 'prof.', 'b.sc.', 'phd', 'ph.d.', 'dphil'}
+        for word in re.split(r' |,|and', ''.join([i for i in self.candidate_string if not i.isdigit()])):
+            if word.casefold() in known_titles:
+                self.known_title_confidence += 1
                     
     def calculate_name_word_count_confidence(self):
         '''based on the number of words the candidate consists of, a confidence is calculated.
@@ -99,4 +112,3 @@ class AuthorCandidate:
 
     def __repr__(self):
         return 'AuthorCandidate(' + str(round(self.confidence(), 3)) + ' \'' + self.candidate_string + '\')'
-
