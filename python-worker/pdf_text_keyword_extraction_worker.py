@@ -34,7 +34,7 @@ class PdfTextKeywordExtractionWorker(AbstractWorker):
         keyword_candidates = rake.generate_candidate_keyword_scores(phrase_list, word_scores)
         sorted_keywords = sorted(keyword_candidates.items(), key=operator.itemgetter(1), reverse=True)
         total_keywords = len(sorted_keywords)
-        # print(sorted_keywords[0:(total_keywords // 3)])
+        print(sorted_keywords[0:(total_keywords // 3)])
 
         for keyword, score in sorted_keywords[0:min(total_keywords // 3, max_keywords_per_file)]:
             annotation = create_annotation((namespaces.oa.score, Literal(score, datatype=XSD.decimal)),
