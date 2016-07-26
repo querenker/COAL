@@ -25,7 +25,7 @@ class PdfMetadataExtractionWorker(AbstractWorker):
 
         info = self.__class__.get_info_for_file(data_filename)
         for key, value in info:
-            print('Key: ' + key + ' Value: ' + value)
+            # print('Key: ' + key + ' Value: ' + value)
             property = self.__class__.get_property_for_key(key)
             if property:
                 if 'Date' in key:
