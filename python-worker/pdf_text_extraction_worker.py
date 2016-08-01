@@ -43,9 +43,10 @@ class PdfTextExtractionWorker(AbstractWorker):
                            url)
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdfauthorextraction',
                            url)
-        self.send_to_queue(
-                'http://s16a.org/vocab/mcas/1.0/pdftextkeywordextraction',
-                url)
+        self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextkeywordextraction',
+                           url)
+        self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextnamedentitylinking',
+                           url)
 
 
 if __name__ == '__main__':
