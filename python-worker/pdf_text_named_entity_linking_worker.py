@@ -9,6 +9,8 @@ from RAKE import rake
 from rdflib import URIRef, Literal, Graph
 from rdflib.namespace import XSD, RDF
 import requests
+from json import loads
+import re
 
 
 kea_url = 'http://141.89.225.50/kea-2.0.1/services/annotate'
@@ -23,26 +25,72 @@ class PdfTextNamedEntityLinkingWorker(AbstractWorker):
         annotations_filename = self.get_model_filename(url)
         pdf_filename = get_cache_filename(url) + '.data'
         text_filename = pdf_filename + '.txt'
+        model_filename = get_cache_filename(url)
+        json_filename = model_filename + '.data.txt.json'
+
+        # with open(json_filename, 'r') as json_file:
+            # text_dict = loads(json_file.read())
+
+        # for paragraph in text_dict:
+            # title = paragraph['title']
+            # content = paragraph['content']
+
+            # for sentence in content:
+
+                # nif = Graph()
+                # data_uri = URIRef(url)
+                # print(url)
+                # print(data_uri)
+
+                # ref = URIRef(url + '#char=0,' + str(len(sentence)))
+                # print(ref)
+
+
+                # nif.add((ref, RDF.type, namespaces.nif.RFC5147String))
+                # nif.add((ref, RDF.type, namespaces.nif.String))
+                # nif.add((ref, RDF.type, namespaces.nif.Context))
+
+                # nif.add((ref, namespaces.nif.isString, Literal(sentence, datatype=XSD.String)))
+
+                # nif_text = nif.serialize(format='turtle')
+
+                # print('lorem')
+                # response = requests.post(kea_url, data=nif_text)
+
+                # print(response.content.decode('utf-8'))
+                # print('ipsum')
 
         with open(text_filename, encoding='utf-8') as file:
             text = file.read()
 
-        nif = Graph()
-        data_uri = URIRef(url)
+        current_char_count = 0
 
-        nif.add((data_uri, RDF.type, namespaces.nif.RFC5147String))
-        nif.add((data_uri, RDF.type, namespaces.nif.String))
-        nif.add((data_uri, RDF.type, namespaces.nif.Context))
+        for sentence in re.split(r'((\.|\?|\!)(\s))', text):
+            nif = Graph()
+            data_uri = URIRef(url)
+            print(url)
+            print(data_uri)
 
-        nif.add((data_uri, namespaces.nif.isString, Literal(text, datatype=XSD.String)))
+            ref = URIRef(url + '#char=' + str(current_char_count) + ',' + str(current_char_count + len(sentence)))
 
-        nif_text = nif.serialize(format='turtle')
+            current_char_count += len(sentence) + 2
 
-        print('lorem')
-        response = requests.post(kea_url, data=nif_text)
+            print(ref)
 
-        print(response.content)
-        print('ipsum')
+            nif.add((ref, RDF.type, namespaces.nif.RFC5147String))
+            nif.add((ref, RDF.type, namespaces.nif.String))
+            nif.add((ref, RDF.type, namespaces.nif.Context))
+
+            nif.add((ref, namespaces.nif.isString, Literal(sentence, datatype=XSD.String)))
+
+            nif_text = nif.serialize(format='turtle')
+
+            print('lorem')
+            response = requests.post(kea_url, data=nif_text)
+
+            print(response.content.decode('utf-8'))
+            print('ipsum')
+            
 
         self.write_and_merge_model(annotations, annotations_filename)
 
