@@ -27,7 +27,7 @@ class AuthorCandidate:
             + (self.known_name_confidence * 4) \
             + (self.known_title_confidence * 4) \
             + (self.name_pattern_confidence * 2) \
-            + (self.name_word_count_confidence * 1) \
+            + (self.name_word_count_confidence * .5) \
             + (self.digit_word_count_confidence * 1)
     
     def confidence(self):
@@ -55,8 +55,11 @@ class AuthorCandidate:
         
     def calculate_author_pattern_confidence(self):
         'based on whether or not the words e.g. begin with an uppercase letter'
+        self.name_pattern_confidence = 0
         if len(self.candidate_string) > 0 and all(map(lambda x: x[0].isupper(), self.candidate_string.replace('and', '').split())):
-            self.name_pattern_confidence += 1
+            self.name_pattern_confidence = 1
+        if sum(1 for c in self.candidate_string if c.isupper()) == 0:
+            self.name_pattern_confidence = -1
     
     def calculate_known_name_confidence(self, first_names):
         'based on whether or not the candidate includes an entry from a list of known names; name set has to be lowercase'
@@ -64,7 +67,7 @@ class AuthorCandidate:
         self.known_name_confidence = 0
         for word in re.split(r' |,|and', ''.join([i for i in self.candidate_string if not i.isdigit()])):
             if word and word[0].isupper():
-                if len(word) >= 2 and word[1] == '.':
+                if len(word) == 2 and word[1] == '.':
                     self.known_name_confidence += 1
                 elif word.strip().casefold() in first_names:
                     self.known_name_confidence += 1
@@ -81,7 +84,7 @@ class AuthorCandidate:
     def calculate_name_word_count_confidence(self):
         '''based on the number of words the candidate consists of, a confidence is calculated.
         Normaly a name consists of two words (first and last name) but some more words are also common (multiple first names)'''
-        word_count = len(self.candidate_string.split())
+        word_count = sum(1 for word in self.candidate_string.split() if len(word) > 0 and word[0].isalpha())
         if word_count < 2:
             self.name_word_count_confidence = -4
         elif word_count == 2:
@@ -111,4 +114,11 @@ class AuthorCandidate:
             
 
     def __repr__(self):
-        return 'AuthorCandidate(' + str(round(self.confidence(), 3)) + ' \'' + self.candidate_string + '\')'
+        return 'AuthorCandidate(' + str(round(self.confidence(), 3)) + ' \'' + self.candidate_string + '\' [' + \
+                 str(self.stop_word_confidence) + ' ' + \
+                 str(self.author_list_confidence) + ' ' + \
+                 str(self.known_name_confidence) + ' ' + \
+                 str(self.known_title_confidence) + ' ' + \
+                 str(self.name_pattern_confidence) + ' ' + \
+                 str(self.name_word_count_confidence) + ' ' + \
+                 str(self.digit_word_count_confidence) + ']' + ')'
