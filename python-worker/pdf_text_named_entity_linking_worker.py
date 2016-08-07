@@ -39,8 +39,6 @@ class PdfTextNamedEntityLinkingWorker(AbstractWorker):
         for sentence in re.split(r'((\.|\?|\!)(\s))', text):
             nif = Graph()
             data_uri = URIRef(url)
-            print(url)
-            print(data_uri)
 
             ref = URIRef(url + '#char=' + str(0) + ',' + str(len(sentence))) # TODO: fix offsets (when supported by server)
 
