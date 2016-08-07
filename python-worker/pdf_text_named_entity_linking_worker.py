@@ -14,7 +14,7 @@ import re
 
 
 kea_url = 'http://141.89.225.50/kea-2.0.1/services/annotate'
-max_length = 250
+max_length = 1000
 
 class PdfTextNamedEntityLinkingWorker(AbstractWorker):
 
@@ -87,7 +87,7 @@ class PdfTextNamedEntityLinkingWorker(AbstractWorker):
         model.add((annotationNode, namespaces.oa.hasBody, graph.value(subject, predicate=namespaces.itsrdf.taIdentRef)))
         model.add((annotationNode, namespaces.oa.annotatedBy, graph.value(subject, predicate=DC.creator)))
         
-        model.add((annotationNode, RDF.type, graph.value(subject, predicate=RDF.type)))
+        # model.add((annotationNode, RDF.type, graph.value(subject, predicate=RDF.type)))
         model.add((annotationNode, namespaces.nif.anchorOf, graph.value(subject, predicate=namespaces.nif.anchorOf)))
         model.add((annotationNode, namespaces.nif.beginIndex, graph.value(subject, predicate=namespaces.nif.beginIndex) + offset))
         model.add((annotationNode, namespaces.nif.endIndex, graph.value(subject, predicate=namespaces.nif.endIndex) + offset))
