@@ -5,6 +5,8 @@
 
 web media content analysis framework
 
+word list (words.txt) taken from https://github.com/dwyl/english-words, which is based on the word list from  http://www.infochimps.com/datasets/word-list-350000-simple-english-words-excel-readable.
+
 This is a SuperAmazingProject
 
 ## Coming Soon...
