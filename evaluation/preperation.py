@@ -56,6 +56,6 @@ def get_test_data(ftp_root_directory):
 
 
 if __name__ == '__main__':
-    get_test_data('ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/42/42/')
+    get_test_data('ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/42/43/')
     for xml_file in glob.glob(test_data_directory + '/*/*.nxml'):
         get_authors_from_xml(xml_file)

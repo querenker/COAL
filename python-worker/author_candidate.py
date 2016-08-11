@@ -150,6 +150,8 @@ class AuthorCandidate:
             line = re.sub(r'\s+', ' ', line)
             for chunk in re.split(r',| and | AND | And | & ', line):
                 chunk = re.split(r'( |^)(by|BY|By) |: ', chunk)[-1]
+                chunk = re.sub(r' \w$', '', chunk)
+                chunk = re.sub(r'^(and|AND|And) | (and|AND|And)$', '', chunk)
                 author_candidates.append(AuthorCandidate(chunk.strip()))
         return author_candidates
 
