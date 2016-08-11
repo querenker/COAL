@@ -8,6 +8,7 @@ from worker_util import get_cache_filename, create_annotation
 from rdflib import URIRef, Literal
 from rdflib.namespace import XSD
 import re
+import namespaces
 
 class PdfAuthorExtractionWorker(AbstractWorker):
 
@@ -31,11 +32,21 @@ class PdfAuthorExtractionWorker(AbstractWorker):
         with open(text_filename, 'r', encoding='ISO-8859-1') as file:
             text = file.read()
 
+        annotation_filename = self.get_model_filename(url)
+        annotations = self.get_new_model()
+
         for candidate in self.preprocess_input(text):
             candidate.calculate_confidences(self.stop_words, self.first_names)
-            print(candidate)
+            if candidate.confidence() >= 0.5:
+                annotation = create_annotation(
+                                            (namespaces.oa.score, Literal(candidate.confidence(), datatype=XSD.decimal)),
+                                            target=URIRef(url),
+                                            body=Literal(candidate.candidate_string, datatype=XSD.string),
+                                            annotator=Literal('AuthorExtraction', datatype=XSD.string))
+                annotations += annotation
+
         
-        #self.write_and_merge_model()
+        self.write_and_merge_model(annotations, annotation_filename)
 
     def preprocess_input(self, text):
         '''

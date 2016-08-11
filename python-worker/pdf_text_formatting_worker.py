@@ -31,7 +31,6 @@ class PdfTextFormattingWorker(AbstractWorker):
 
         self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextlangdetect',
                            url)
-
     def get_title(self, paragraph):
         sentences = paragraph.split('\n')
         if len(sentences) < 2:
