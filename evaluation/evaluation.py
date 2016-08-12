@@ -1,8 +1,11 @@
+#!/usr/bin/env python3
+
 import os
 import sys
 import requests
 from xml.etree import ElementTree
 import subprocess
+from unidecode import unidecode
 
 sys.path.insert(0, '../python-worker/')
 from author_candidate import AuthorCandidate
@@ -10,7 +13,7 @@ from author_candidate import AuthorCandidate
 test_data_directory = 'test-data'
 
 
-def compare_results(true_values, test_values):
+def compare_results(true_values, test_values, strict_comparison=True):
     assert len(true_values) == len(test_values)
     true_positives = set()
     false_positives = set()
@@ -18,6 +21,9 @@ def compare_results(true_values, test_values):
     for document in true_values:
         true_authors = set(true_values[document])
         find_authors = set(test_values[document])
+        if not strict_comparison:
+            true_authors = {unidecode(author) for author in true_authors}
+            find_authors = {unidecode(author) for author in find_authors}
         true_positives |= (true_authors & find_authors)
         false_positives |= (find_authors - true_authors)
         false_negatives |= (true_authors - find_authors)
@@ -93,4 +99,4 @@ if __name__ == '__main__':
     author_mapping = get_author_mapping()
     # cermine_results = perform_cermine_algorithm(author_mapping.keys())
     our_results = perform_our_algorithm(author_mapping.keys())
-    compare_results(author_mapping, our_results)
+    compare_results(author_mapping, our_results, strict_comparison=False)
