@@ -40,7 +40,7 @@ def get_authors_from_file(authors_file):
     return {line.strip() for line in open(authors_file, 'r')}
 
 
-def get_author_from_cermine_response(xml_response):
+def get_authors_from_cermine_response(xml_response):
     authors = set()
     xmldoc = ElementTree.fromstring(xml_response)
     for author in xmldoc.findall('.//contrib[@contrib-type="author"]'):
@@ -72,7 +72,10 @@ def perform_cermine_algorithm(test_documents):
         print(document + ' in process...')
         data = open(document, 'rb').read()
         r = requests.post('http://cermine.ceon.pl/extract.do', data=data)
-        cermine_results[document] = get_author_from_cermine_response(r.text)
+        authors = get_authors_from_cermine_response(r.text)
+        cermine_results[document] = authors
+        with open(document[:-3] + 'cermine', 'w') as file:
+            file.write('\n'.join(authors))
     return cermine_results
 
 
@@ -92,11 +95,14 @@ def perform_our_algorithm(test_documents):
         author_text = open(pdf_text, 'rb').read().decode('utf-8')
         authors = AuthorCandidate.get_authors_from_text(author_text, known_words, first_names, stop_words)
         our_results[document] = authors
+        with open(document[:-3] + 'coal', 'w') as file:
+            file.write('\n'.join(authors))
     return our_results
 
 
 if __name__ == '__main__':
     author_mapping = get_author_mapping()
-    # cermine_results = perform_cermine_algorithm(author_mapping.keys())
-    our_results = perform_our_algorithm(author_mapping.keys())
+    cermine_results = perform_cermine_algorithm(author_mapping.keys())
+    compare_results(author_mapping, cermine_results, strict_comparison=False)
+    # our_results = perform_our_algorithm(author_mapping.keys())
     compare_results(author_mapping, our_results, strict_comparison=False)

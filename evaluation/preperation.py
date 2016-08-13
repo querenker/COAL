@@ -52,7 +52,7 @@ def get_test_data(ftp_root_directory):
 
 
 if __name__ == '__main__':
-    for i in range(32, 53):
+    for i in range(32, 43):
         get_test_data('ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/42/' + str(i) + '/')
     for file in glob.iglob('ftp*/**/*.tar.gz', recursive=True):
         extractTarGzFile(file)
