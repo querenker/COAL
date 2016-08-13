@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import subprocess
 import os
 import glob
@@ -48,14 +50,14 @@ def get_test_data(ftp_root_directory):
     if not os.path.exists(root_directory):
         subprocess.run(['wget', '-r', ftp_root_directory])
 
+
+if __name__ == '__main__':
+    for i in range(32, 43):
+        get_test_data('ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/42/' + str(i) + '/')
     for file in glob.iglob('ftp*/**/*.tar.gz', recursive=True):
         extractTarGzFile(file)
+    for xml_file in glob.glob(test_data_directory + '/*/*.nxml'):
+        get_authors_from_xml(xml_file)
 
     remove_unnecessary_files(test_data_directory)
     remove_incomplete_data(test_data_directory)
-
-
-if __name__ == '__main__':
-    get_test_data('ftp://ftp.ncbi.nlm.nih.gov/pub/pmc/42/43/')
-    for xml_file in glob.glob(test_data_directory + '/*/*.nxml'):
-        get_authors_from_xml(xml_file)
