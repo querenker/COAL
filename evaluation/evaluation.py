@@ -11,13 +11,17 @@ sys.path.insert(0, '../python-worker/')
 from author_candidate import AuthorCandidate
 
 test_data_directory = 'test-data'
+# test_data_directory = 'PDF-Archiv'
 
 
 def compare_results(true_values, test_values, strict_comparison=True, case_sensitive=True):
     assert len(true_values) == len(test_values)
-    true_positives = set()
-    false_positives = set()
-    false_negatives = set()
+    # true_positives = set()
+    # false_positives = set()
+    # false_negatives = set()
+    tp = 0
+    fp = 0
+    fn = 0
     for document in true_values:
         true_authors = set(true_values[document])
         find_authors = set(test_values[document])
@@ -27,12 +31,18 @@ def compare_results(true_values, test_values, strict_comparison=True, case_sensi
         if not case_sensitive:
             true_authors = {author.casefold() for author in true_authors}
             find_authors = {author.casefold() for author in find_authors}
-        true_positives |= (true_authors & find_authors)
-        false_positives |= (find_authors - true_authors)
-        false_negatives |= (true_authors - find_authors)
-    print("true positive: " + str(len(true_positives)))
-    print("false positive: " + str(len(false_positives)))
-    print("false negative: " + str(len(false_negatives)))
+        # true_positives |= (true_authors & find_authors)
+        # false_positives |= (find_authors - true_authors)
+        # false_negatives |= (true_authors - find_authors)
+        tp += len(true_authors & find_authors)
+        fp += len(find_authors - true_authors)
+        fn += len(true_authors - find_authors)
+    # print("true positive: " + str(len(true_positives)))
+    # print("false positive: " + str(len(false_positives)))
+    # print("false negative: " + str(len(false_negatives)))
+    print("true positive: " + str(tp))
+    print("false positive: " + str(fp))
+    print("false negative: " + str(fn))
     # print("-------------------false positive------------")
     # print(', '.join(false_positives))
     # print("-------------------false negative------------")
@@ -40,7 +50,7 @@ def compare_results(true_values, test_values, strict_comparison=True, case_sensi
 
 
 def get_authors_from_file(authors_file):
-    return {line.strip() for line in open(authors_file, 'r')}
+    return {line.strip() for line in open(authors_file, 'r') if len(line.strip())}
 
 
 def get_authors_from_cermine_response(xml_response):
@@ -118,8 +128,8 @@ def perform_our_algorithm(test_documents):
 
 if __name__ == '__main__':
     author_mapping = get_author_mapping()
-    cermine_results = perform_cermine_algorithm(author_mapping.keys())
     our_results = perform_our_algorithm(author_mapping.keys())
+    cermine_results = perform_cermine_algorithm(author_mapping.keys())
     print('cermine, strict, case sensitive')
     compare_results(author_mapping, cermine_results, strict_comparison=True, case_sensitive=True)
     print('coal, strict, case sensitive')
