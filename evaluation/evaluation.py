@@ -13,7 +13,7 @@ from author_candidate import AuthorCandidate
 test_data_directory = 'test-data'
 
 
-def compare_results(true_values, test_values, strict_comparison=True):
+def compare_results(true_values, test_values, strict_comparison=True, case_sensitive=True):
     assert len(true_values) == len(test_values)
     true_positives = set()
     false_positives = set()
@@ -24,16 +24,19 @@ def compare_results(true_values, test_values, strict_comparison=True):
         if not strict_comparison:
             true_authors = {unidecode(author) for author in true_authors}
             find_authors = {unidecode(author) for author in find_authors}
+        if not case_sensitive:
+            true_authors = {author.casefold() for author in true_authors}
+            find_authors = {author.casefold() for author in find_authors}
         true_positives |= (true_authors & find_authors)
         false_positives |= (find_authors - true_authors)
         false_negatives |= (true_authors - find_authors)
     print("true positive: " + str(len(true_positives)))
     print("false positive: " + str(len(false_positives)))
     print("false negative: " + str(len(false_negatives)))
-    print("-------------------false positive------------")
-    print(', '.join(false_positives))
-    print("-------------------false negative------------")
-    print(', '.join(false_negatives))
+    # print("-------------------false positive------------")
+    # print(', '.join(false_positives))
+    # print("-------------------false negative------------")
+    # print(', '.join(false_negatives))
 
 
 def get_authors_from_file(authors_file):
@@ -70,11 +73,18 @@ def perform_cermine_algorithm(test_documents):
     cermine_results = dict()
     for document in test_documents:
         print(document + ' in process...')
-        data = open(document, 'rb').read()
-        r = requests.post('http://cermine.ceon.pl/extract.do', data=data)
-        authors = get_authors_from_cermine_response(r.text)
+        cermine_filename = document[:-3] + 'cermine'
+        authors = set()
+        if os.path.isfile(cermine_filename):
+            print('data found in cache...')
+            authors = get_authors_from_file(cermine_filename)
+        else:
+            data = open(document, 'rb').read()
+            r = requests.post('http://cermine.ceon.pl/extract.do', data=data)
+            if len(r.text) > 0:
+                authors = get_authors_from_cermine_response(r.text)
         cermine_results[document] = authors
-        with open(document[:-3] + 'cermine', 'w') as file:
+        with open(cermine_filename, 'w') as file:
             file.write('\n'.join(authors))
     return cermine_results
 
@@ -90,12 +100,18 @@ def perform_our_algorithm(test_documents):
     extract_text(test_data_directory)
     our_results = dict()
     for document in test_documents:
-        # print(document + ' in process...')
-        pdf_text = document[:-3] + 'txt'
-        author_text = open(pdf_text, 'rb').read().decode('utf-8')
-        authors = AuthorCandidate.get_authors_from_text(author_text, known_words, first_names, stop_words)
+        print(document + ' in process...')
+        coal_filename = document[:-3] + 'coal'
+        authors = set()
+        if os.path.isfile(coal_filename):
+            print('data found in cache...')
+            authors = get_authors_from_file(coal_filename)
+        else:
+            pdf_text = document[:-3] + 'txt'
+            author_text = open(pdf_text, 'rb').read().decode('utf-8')
+            authors = AuthorCandidate.get_authors_from_text(author_text, known_words, first_names, stop_words)
         our_results[document] = authors
-        with open(document[:-3] + 'coal', 'w') as file:
+        with open(coal_filename, 'w') as file:
             file.write('\n'.join(authors))
     return our_results
 
@@ -103,6 +119,12 @@ def perform_our_algorithm(test_documents):
 if __name__ == '__main__':
     author_mapping = get_author_mapping()
     cermine_results = perform_cermine_algorithm(author_mapping.keys())
-    compare_results(author_mapping, cermine_results, strict_comparison=False)
-    # our_results = perform_our_algorithm(author_mapping.keys())
-    compare_results(author_mapping, our_results, strict_comparison=False)
+    our_results = perform_our_algorithm(author_mapping.keys())
+    print('cermine, strict, case sensitive')
+    compare_results(author_mapping, cermine_results, strict_comparison=True, case_sensitive=True)
+    print('coal, strict, case sensitive')
+    compare_results(author_mapping, our_results, strict_comparison=True, case_sensitive=True)
+    print('cermine, not strict, case insensitive')
+    compare_results(author_mapping, cermine_results, strict_comparison=False, case_sensitive=False)
+    print('coal, not strict, case insensitive')
+    compare_results(author_mapping, our_results, strict_comparison=False, case_sensitive=False)
