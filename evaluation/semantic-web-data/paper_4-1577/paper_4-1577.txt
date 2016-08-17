@@ -1,0 +1,639 @@
+Armstrong Relations for Ontology Design and
+Evaluation
+Henriette Harmse1 , Katarina Britz2 , and Aurona Gerber1
+1
+
+2
+
+CSIR Meraka Institute and Department of Informatics, University of Pretoria,
+South Africa
+CSIR CAIR, Information Science Department, Stellenbosch University, South
+Africa
+
+Abstract. A challenge in ontology design is to ensure that the ontology accurately represents the application domain and application constraints. Motivating scenarios provide the motivation for the representation choices made during design, and competency questions are subsequently used to evaluate the design. In this paper we show how the notion
+of Armstrong relations from relational database theory can be used to
+generate motivating scenarios and competency questions for uniqueness
+constraints and not null constraints.
+
+1
+
+Introduction
+
+In this paper3 our focus is on supporting an ontology engineer in designing an
+ontology that captures the relevant constraints of the application domain based
+on the input of a domain expert. The problem is that the expert might have
+omitted to mention constraints that are of importance. The question now is, how
+can the ontology engineer help the expert to determine all relevant constraints?
+In an attempt to answer this, we translate Armstrong relations from relational database theory to ontologies, which is the main contribution of this
+paper. In relational database theory Armstrong relations are used to generate
+“perfect test data” for a set of constraints. “Perfect test data” satisfies all constraints deemed relevant and violates all constraints considered irrelevant. For
+arbitrary constraints Armstrong relations are undecidable [12], and we therefore
+limit ourselves to uniqueness constraints and not null constraints.
+Adopting the ontology design approach of Grüninger, et al.[9], we consider
+each row in an an Armstrong relation as a potential motivating scenario since
+it satisfies each meaningful constraint. The Armstrong relation will also violate
+every irrelevant constraint and thus the Armstrong relation is a motivating scenario for irrelevant constraints that could be used by a ontology engineer to
+verify with an expert that the constraints that are violated, are indeed irrelevant. Once expert and ontology engineer agree on which constraints should be
+3
+
+This work was partially funded by the National Research Foundation of South Africa
+under Grant No. 85482.
+
+met and which not, these constraints and motivating scenarios can be used to
+evaluate the design of the ontology through formal competency questions (CQs).
+The paper is structured as follows: Section 2 presents preliminaries and Section 3 develops the algorithm for generating an Armstrong ABox, which we relate
+to ontology design and evaluation in Section 4. We conclude with Section 5.
+
+2
+
+Preliminaries
+
+2.1
+
+Ontology Design and Evaluation
+
+The ontology design and evaluation approach of Grüninger, et al. [9], aims to
+engineer an ontology based on first-order logic that matches a set of business
+requirements expressed as a number of motivating scenarios. Each motivating
+scenario gives rise to informal competency questions (CQ) which the ontology
+should answer. Based on the informal CQs a terminology can be constructed
+and the informal CQs can be translated into formal CQs. The last step in the
+approach is to define the conditions under which the competency questions are
+complete and to prove completeness.
+Competency questions are defined by Grüninger, et al. [9] as follows:
+Definition 1. Let Tontology be a terminology with related axioms, Tground a set
+of ground literals and Q a first-order sentence expressed in terms of Tontology . A
+formal competency question then has one of two forms:
+Entailment CQ Determine whether Tontology ∪ Tground  Q
+Consistency CQ Determine whether Tontology ∪ Tground 2 ¬Q
+2.2
+
+Armstrong Relations
+
+Armstrong relations are the underlying notion to Armstrong ABoxes which we
+present in Section 3. In this section we explain the benefit of using Armstrong
+relations in relational database theory with some examples.
+A challenge in database design is to determine the constraints that are relevant and the constraints that are irrelevant for a set of business requirements.
+This task is challenging due to the mismatch in expertise: typically domain experts have in-depth domain knowledge but limited modelling knowledge whilst
+ontology engineers have modelling experience without domain knowledge. Test
+data are therefore often used to validate, communicate and consolidate the conceptual model [12].
+In relational database theory perfect test data can be generated using Armstrong relations. The generated test data are said to be perfect since an Armstrong relation for a table schema is a set of data that satisfy all constraints that
+are perceived to be relevant and violates all constraints that are perceived to
+be irrelevant [12]4 . As an example, consider the table schema Schedule used by
+4
+
+The formal definition of an Armstrong relation can be found in the Link, et. al.
+paper, which is similar to that of an Armstrong ABox defined in Definition 8.
+
+2
+
+Link, et al. [12] (Figure 1), which defines a schedule of courses taught by lecturers at given times in given rooms. Note that the primary key over C ID and Time
+implies two constraints, namely that (1) the combination of C ID and Time is
+unique and that (2) neither C ID nor Time is allowed to be null. An Armstrong
+relation for these 2 constraints is given in the table in Figure 1. Note that ni is
+used to represent a null marker or “no information”.
+
+Fig. 1. Table schema Schedule with related Armstrong relation
+
+The table is an Armstrong relation for the table schema in Figure 1 because
+for all rows the combination of C ID and Time is unique and neither of these
+columns contain any null values. Hence, it agrees with the uniqueness and not
+null constraints that are relevant and it also violates all uniqueness and not
+null constraints that are irrelevant. As an example it violates the uniqueness
+constraint for C ID in rows 1 and 2.
+An Armstrong relation is constructed with only a certain set of constraints
+in mind. The Armstrong relation of Figure 1 only considers uniqueness and not
+null constraints. Moreover, Armstrong relations are undecidable for arbitrary
+constraints [2], but under certain conditions Armstrong relations do exist for
+cardinality constraints, uniqueness constraints, functional dependencies, multivalued dependencies and not null constraints [8, 12]. In this paper we focus on
+uniqueness- and not null constraints.
+Based on the example data in Figure 1, a domain expert subsequently realizes
+that having a lecturer teach two courses at the same time in the same room does
+not make sense. They decide to revise the table schema to that of Figure 2,
+which presents the related Armstrong relation as well.
+
+Fig. 2. Redesigned table schema Schedule with related Armstrong relation
+
+2.3
+
+Important Description Logic Notions
+
+In this paper we will use OWL 2 [11, 13], which we assume readers are familiar
+with and therefore we only highlight the DL notions that are of relevance to this
+paper, namely n-ary relations and uniqueness constraints.
+n-ary Relations In general DLs only consider unary (concepts) and binary relations (roles) and hence n-ary relations cannot be expressed directly [1]. Variants
+of the DL DLR are the exception to the rule and explicitly include constructors
+3
+
+in their syntax for expressing n-ary relations [4]. However, n-ary relations can
+still be expressed in DLs that do not cater for n-ary relations through the notion
+of reification [1].
+Uniqueness Constraints The requirement for expressing uniqueness is a need
+that has been expressed often by users of ontologies. This lead to various implementations of identification constraints in DLs with different expressivity and
+different behaviour [3, 5, 6, 13]. However, the underlying assumption on which
+these implementations agree is that if two individuals x and y participate in
+some inverse functional role r, then it follows that x = y. We will use Easy Keys
+as defined in Parsia, et. al. [13].
+
+3
+
+Generating an Armstrong ABox
+
+In this section we adapt the definitions and algorithm of Link, et al. [12], which
+are applicable to relational database theory to ontologies. The translation has to
+consider differences between DLs and relational database theory, in particular
+the open world/closed world assumption. However, in constructing an Armstrong
+ABox we will restrict ourselves to known individuals.
+The translation will be presented by first providing an informal discussion
+and/or example based on the table schemas and instances in Section 2.2. This
+approach is adopted so that the parallels between relational database theory and
+ontologies are clear, which will help to clarify why the Armstrong relation notion
+can be applied to ontologies. These informal explanations are followed by the
+formal DL related definitions and examples.
+3.1
+
+Ontology Structure for representing an Armstrong Relation
+
+Intuitively a table schema maps to a TBox and a table instance to an ABox.
+Hence, an Armstrong relation for a table schema Schema will translate to an
+ontology OSchema where OSchema = TSchema ∪ ASchema .
+The table schema of Figure 2 describes three different aspects of the table
+schema Schedule namely:
+1. The structure of the table schema Schedule, which consists of columns C ID,
+Time, L Name and Room, where each column is associated with a countably infinite domain, which in this case is respectively CHAR[5], VARCHAR, CHAR[15]
+and VARCHAR.
+2. The primary key over C ID and Time, which states that for these columns
+null values are not allowed, which we will refer to as null-free here.
+3. The uniqueness constraint which is specified over C ID and Time and the
+uniqueness constraint which is specified over Time, L Name and Room.
+The Armstrong algorithm of Link, et al. [12] depends on the ability to discern
+these different aspects of a table schema. We therefore partition TSchema such
+nf
+S
+Σ
+S
+that TSchema = TSchema
+∪TSchema
+∪TSchema
+, where TSchema
+defines the structural
+nf
+Σ
+aspects, TSchema the null-free aspects and TSchema
+the uniqueness constraints
+that apply to the Schema representation in DLs.
+4
+
+3.2
+
+Characterization of n-ary Relations
+
+The definitions presented in this section establishes the terminology that will
+be used to give a compact characterization of the DL representation of a table schema. The structure of a table schema consisting of n columns can be
+represented via reification, which we formalize in Definition 2 [1].
+Definition 2. An n-ary relation Rn over components R1 , . . . , Rn can be expressed as the reified concept CRn using n roles r1 , . . . , rn such that
+CRn v ≤ 1r1 .> u . . . u ≤ 1rn .>
+> v ∀r1 .R1 u . . . u > v ∀rn .Rn
+CRn hasKey (r1 , . . . , rn )
+
+where the key constraint ensures that no 2 individuals of CRn agrees on their
+participation in roles r1 , . . . , rn . For convenience we denote the DL axioms that
+represent the n-ary relation Rn as TRSn .
+S
+Example 1. The corresponding TBox TSched
+axioms for the table schema of Figure 2 are:
+S
+TSched
+= {CSched v≤ 1rC
+
+> v ∀rC
+
+ID .>u
+
+ID .Rchar[5] , >
+
+≤ 1rT ime .>u ≤ 1rL N ame .>u ≤ 1rRoom .>,
+v ∀rT ime .Rvarchar , > v ∀rL N ame .Rchar[15] ,
+
+> v ∀rRoom .Rvarchar , CSched hasKey (rC
+
+ID , rT ime , rL N ame , rRoom )}
+
+D
+D
+D
+where Rchar[5]
+, Rvarchar
+, Rchar[15]
+⊆ 4D and 4D is the domain of all data types.
+
+For a given table schema various table instances can exist. The table instance
+of Figure 2 is one possible table instance of the related table schema Schedule.
+When for a given row certain column values are not null, the row is said to
+be total for those columns. In the table instance of Figure 1, row 1 is total for
+columns C ID, Time, L Name and Room, while row 4 is total only for columns C ID,
+Time and Room. When all rows for a table instance are total for a set of columns,
+the table instance is said to be total for those columns. Hence, the table instance
+is total for columns C ID and Time.
+A table instance is represented in DLs as an ABox, denoted by ARn , corresponding to TBox TRn . For a given TRn any number of A0Rn , A1Rn , . . . can exist,
+where each AiRn represents a different table instance for a given table schema.
+The next definition defines ARn and related notions.
+Definition 3. An ABox ARn corresponding to TRn consists of a set of assertions CRn (cj ), j ≥ 1. A known individual c of CRn is said to be X-total, X ⊆
+{r1 , . . . , rn }, if there are known individuals hi , such that Ri (hi ) and ri (c, hi ), for
+any ri ∈ X. ARn is said to be X-total if for all known individuals cj , j ≥ 1
+such that CRn (cj ) ∈ ARn we have that cj is X-total.
+Example 2. The corresponding ASched is given for TSched in Table 1 where c1 ,
+c2 , c3 and c4 (for which the assertions are not explicitly shown) are individuals of
+CSched . Table 1 is the ABox representation of the table instance of Figure 2. Note
+5
+
+that no assertions are added for null markers since this represents the semantics
+of “no information” faithfully. Individual c1 is {rC ID , rT ime , rL N ame , rRoom }total and ASched is {rC ID , rT ime }-total.
+The table schema of Figure 2 states that columns C ID and Time together
+represent the primary key of Schedule. One implication of this is that columns
+C ID and Time represent a null-free subschema of Schedule and hence the table
+instance of Figure 2 is {C ID,Time}-total.
+Table 1. Corresponding ABox, ASched , for the table instance of Figure 2
+C ID
+Time
+L Name
+Room
+rC ID (c1 , “11301”) rT ime (c1 , “M on, 10am”) rL N ame (c1 , “Church”) rRoom (c1 , “Red”)
+rC ID (c2 , “11301”) rT ime (c2 , “T ue, 02pm”) rL N ame (c2 , “Church”) rRoom (c2 , “Red”)
+rC ID (c3 , “78200”) rT ime (c3 , “M on, 10am”) rL N ame (c3 , “Church”)
+rC ID (c4 , “99120”) rT ime (c4 , “M on, 10am”)
+rRoom (c4 , “Red”)
+
+Definition 4. Let X ⊆ {r1 , . . . , rn } be a subset of the components of Rn that
+are null-free in the application domain, we define TRnf
+n such that it consists of
+the axioms CRn v ∃ri .>, for any ri ∈ X. If TRnf
+is
+non-empty
+we say TRn is
+n
+null-free for X, which we abbreviate by nf (TRn , X). When ARn is also X-total
+and therefore ARn satisfies nf (TRn , X), we say that ARn is null-free for X,
+which we denote by ARn  nf (TRn , X).
+nf
+Example 3. When {CSched v ∃rC ID .>, CSched v ∃rC T ime .>} ⊆ TSched
+, we say
+that the Schedule relation is null-free for rC ID and rT ime , which we denote by
+nf (TSched , {rC ID , rT ime }). From Table 1 we determine that ASched is null-free
+for rC ID and rT ime since ASched is {rC ID , rT ime }-total. Hence, we have that
+ASched  nf (TSched , {rC ID , rT ime }).
+
+A cardinality constraint (CC) over columns of a table schema constrains how
+many times a combination of values can be duplicated for those columns in a
+table instance. This is expressed as card(columns) ≤ b. As an example, the table
+instance of Figure 2 satisfies card(L N ame, Room) ≤ 2.
+Definition 5. A cardinality constraint (CC) over TRSn is a statement
+card(TRn , X) ≤ b where X ⊆ {r1 , . . . , rn } and b is a positive integer. The CC
+card(TRn , X) ≤ b is satisfied by ARn , which we denote by
+ARn  card(TRn , X) ≤ b, if and only if for each rk ∈ X there is a named
+individual hk such that
+]{cj |cj is X-total, CRn (cj ) ∈ ARn and for each ri ∈ X, ∃hi such that
+Ri (hi ) ∈ ARn , ri (cj , hi ) ∈ ARn } ≤ b.
+
+In the special case where b = 1 for a CC, the CC is called a uniqueness constraint (UC) and is represented by u(TRn , X), which if satisfied by ARn is denoted by ARn  u(TRn , X) 5 .
+Example 4. For Table 1 ASched  card(TSched , {rL N ame , rRoom }) ≤ 2.
+5
+
+We explicitly ignore non-standard CCs and UCs, that is where X = ∅.
+
+6
+
+3.3
+
+C-Armstrong ABoxes
+
+Recall from Section 2.2 that an Armstrong relation satisfies all constraints that
+are relevant and violates all constraints that are irrelevant. I.e., the table schema
+of Figure 2 states that there is a UC over columns C ID and Time. Hence, there
+is no row in the Armstrong relation of Figure 2 that violates this constraint.
+Definition 6. Let Σ be a set of constraints (i.e. UCs) over TRSn . We say that
+ARn satisfies Σ, denoted by ARn  Σ, if ARn satisfies every element of Σ.
+If for some σ ∈ Σ, ARn does not satisfy σ we say ARn violates σ and write
+ARn 1 σ. By extension we have that ARn also violates Σ, which we denote by
+ARn 1 Σ. For convenience we represent the axioms that represent Σ as TRΣn .
+Example 5. For ASched of Table 1 we have that ASched  Σ where
+Σ = {u(rC ID , rT ime ), u(rT ime , rL N ame , rRoom )}. However, for
+Σ = {u(rC ID ), u(rL N ame , rRoom )} we have that ASched 1 Σ.
+Figure 2 states that there is a UC over columns C ID and Time, which implies
+the following UCs: (1) the UC over C ID, Time and L Name, (2) the UC over C ID,
+Time and Room, and (3) the UC over C ID, Time, L Name and Room.
+Definition 7. Assume TRSn is given with nf (TRn , X), X ⊆ {r1 , . . . , rn }, with
+Σ ∪ {ϕ} a finite set of constraints over TRn . We say that Σ implies ϕ in
+the presence of nf (TRn , X), denoted by Σ, nf (TRn , X)  ϕ, if every X-total
+ARn that satisfies Σ also satisfies ϕ. If Σ does not imply ϕ in the presence
+of nf (TRn , X) it is denoted by Σ, nf (TRn , X) 2 ϕ. We denote the semantic
+∗
+closure of Σ and nf (TRn , X) by Σnf
+(TRn ,X) , which we define as
+∗
+Σnf
+(TRn ,X) = {ϕ|Σ, nf (TRn , X)  ϕ}
+S
+Example 6. For TSched
+, nf (TSched , {rC ID , rT ime }) and
+Σ = {u(rC ID , rT ime ), u(rT ime , rL N ame , rRoom )} we have that
+∗
+Σnf
+(TSched ,{rC
+
+ID ,rT ime })
+
+= {u(rC
+
+ID , rT ime ), u(rT ime , rL N ame , rRoom ),
+
+u(rC
+
+ID , rT ime , rL N ame ), u(rC ID , rT ime , rRoom ),
+
+u(rC
+
+ID , rT ime , rL N ame , rRoom )}
+
+Given the previous definitions it is now possible to formalize the notion of
+an Armstrong ABox for an n-ary relation Rn .
+Definition 8. Let C denote a class of constraints and let Σ be a finite set of
+elements from C. Assume nf (TRn , X), X ⊆ S holds where S = {r1 , . . . , rn }. We
+say ARn is C-Armstrong for Σ and nf (TRn , X) if and only if
+1. ARn satisfies Σ, which we write as ARn  Σ,
+∗
+2. ARn violates every ϕ ∈
+/ Σnf
+(TRn ,X) , which we write as ARn 1 ϕ for each
+∗
+ϕ∈
+/ Σnf
+,
+(TRn ,X)
+3. ARn is X-total, which is written as ARn  nf (TRn , X), and
+4. for any H ⊆ S − X, ARn is not H-total, which we write as ARn 1 nf (TRn , H).
+
+7
+
+S
+Example 7. For TSched
+, nf (TSchedtheoremstar , {rC ID , rT ime }) and
+Σ = {u(rC ID , rT ime ), u(rT ime , rL N ame , rRoom )}, we can confirm that ASched of
+Table 1 is C-Armstrong, where C represents the class of UCs, by verifying that:
+
+1.
+2.
+3.
+4.
+
+3.4
+
+ASched
+ASched
+ASched
+ASched
+
+satisfies Σ,
+∗
+violates every ϕ ∈
+/ Σnf
+(TSched ,{rC ID ,rT ime }) ,
+is {rC ID , rT ime }-total and
+is not {rL N ame }-total or {rRoom }-total.
+
+Anti-keys and Strong Agreement Sets
+
+Calculating an Armstrong relation for the class of UCs depends on the ability
+to determine those columns for which no UC is implied in order for them to
+be violated. Rather than violating all UCs not implied, it is sufficient to only
+violate those that are maximal with the property that they are not implied by
+Σ in the presence of the null-free subschema. Evidence for this intuition can be
+seen in Figure 2. The combination of C ID, L Name and Room as a potential UC is
+violated by rows 1 and 2, which implies that no subset of these columns can be
+a UC. In relational database theory the combination of Time, L Name and Room
+is referred to as an anti-key [12].
+An anti-key satisfies the following 3 conditions: (1) anti-keys are columns of
+a table schema, (2) anti-keys are non-empty sets of columns of a table schema
+for which no UC hold, and (3) anti-keys are maximal w.r.t. condition (2).
+Definition 9. Let Σ be a set of UCs, S = {r1 , . . . , rn }, X ⊆ S and assume
+nf (TRn , X) holds for TRSn . For Y ⊆ S, we denote that Y is an anti-key by a(Y ).
+The set Σ −1 of all anti-keys is defined as
+Σ −1 = {a(Y )|Y ⊆ S and Σ, nf (TRn , X) 2 u(TRn , Y ) and
+for any H ⊆ (S − Y )[Σ, nf (TRn , X)  u(TRn , Y ∪ H)]}
+
+Example 8. The anti-keys for TSched with nf (TRn , {rC ID , rT ime }) and UCs Σ =
+{u(rC ID , rT ime ), u(rT ime , rL N ame , rRoom )} is given by
+Σ −1 = {a(rC ID , rL N ame , rRoom ), a(rT ime , rL N ame ), a(rT ime , rRoom )}.
+Anti-keys can be calculated using hypergraphs where the columns of the table
+schema and the sets of columns representing UCs are respectively the vertexes
+and the edges [12]. Since only minimal UCs are used, the hypergraph is a simple
+hypergraph. We illustrate the calculation of anti-keys through an example. The
+minimal transversal [7] of H is given by T r(H) = {{Time}, {C ID, Room},
+{C ID, L Name}}. Anti-keys are maximal such that they are not UCs. Since each
+element of the transversal represent columns that form part of minimal UCs, the
+set difference between the set of columns representing the table schema and an
+element of the transversal delivers an anti-key. I.e., the set difference between the
+columns of Schedule and {Time}, the first element of the transversal, delivers
+the anti-key over C ID, L Name and Room.
+8
+
+Algorithm 1 Algorithm for calculating an Armstrong ABox
+Input: TBox TRSn , S = {r1 , . . . , rn }, Σ a set of UCs and nf (TRn , X), X ⊆ S
+Output: Armstrong ABox ARn for Σ and nf (TRn , X) where
+hri ,jri , i = {1, . . . , n}, jri ≥ 1, are individuals such that Ri (hri ,jri )
+A1:
+A2:
+A3:
+A4:
+
+A5:
+
+ARn = ARn ∪ {CRn (c1 ), ri (c1 , hri ,1 )}, i = {1, . . . , n}
+Compute Σ −1 using hypergraph methods
+k = 2, jri = 2, i = {1, . . . , n};
+for all Y such that a(Y ) ∈ Σ −1 do
+ARn = ARn ∪ {CRn (ck ), ri (ck , hri ,jri )}, i = {1, . . . , n} where
+
+
+hri ,1 , if ri ∈ Y
+hri ,jri = hri ,jri , jri = jri + 1, if ri ∈ X − Y ; k = k + 1;
+
+
+do nothing, else
+Let Z ⊆ S be such that ARn is Z-total
+if Z − X 6= ∅ then
+ARn = ARn ∪ {CRn (ck ), ri (ck , hri ,jri )}, i = {1, . . . , n} where
+(
+do nothing, if ri ∈ X − Z
+; return ARn
+hri ,jri =
+hri ,jri , else
+else return ARn
+
+Lemma 1. Define the hypergraph H for TRSn , S = {r1 , . . . , rn }, with Σ a set
+of minimal UCs, with nf (TRn , X), X ⊆ S, as H = (V, E) where V = S and
+E = {Z|u(Z) ∈ Σ}. Then the set of anti-keys is defined as
+Σ −1 = {a(S − W )|W ∈ T r(H)}
+
+where T r(H) denotes the minimal transversal of the hypergraph H.
+S
+Example 9. For TSched
+and Σ = {u(rC ID , rT ime ), u(rT ime , rL N ame , rRoom )} we
+create the hypergraph H = (V, E) where V = {rC ID , rT ime , rL N ame , rRoom }
+and E = {{rC ID , rT ime }, {rT ime , rL N ame , rRoom }}. We then have that
+T r(H) = {{rT ime }, {rC ID , rRoom }, {rC ID , rL N ame }} from which follows that
+Σ −1 = {a(rC ID , rL N ame , rRoom ), a(rT ime , rL N ame ), a(rT ime , rRoom )}.
+
+A notion related to that of anti-keys is strong agreement sets. Two rows of a
+table instance is said to strongly agree on a set of columns if for those columns
+the two rows agree on their total values. For the table instance in Figure 2 row
+1 and 2 strongly agree on columns C ID, L Name and Room.
+Definition 10. Given ARn we say two individuals c1 and c2 of concept CRn
+strongly agree on the roles X, X ⊆ S, where S = {r1 , . . . , rn }, if they are
+X-total and the fillers of each ri ∈ X are filled by the same individuals. The
+strong agreement set of c1 and c2 , denoted by ag s (c1 , c2 ), is given by
+ag s (c1 , c2 ) = {ri |ri -total , CRn (c1 ) ∈ ARn , CRn (c2 ) ∈ ARn , and ∃yi , zi such that
+Ri (yi ) ∈ ARn , Ri (zi ) ∈ ARn , ri (c1 , yi ) ∈ ARn , ri (c2 , zi ) ∈ ARn
+and yi = zi for any ri ∈ X}.
+
+9
+
+The strong agreement set of ARn is given by ag s (ARn ) which we define as
+ag s (ARn ) = {ag s (c1 , c2 )|CRn (c1 ) ∧ CRn (c2 ) ∧ c1 6= c2 }
+Example 10. The strong agreement set of ARn of Table 1 is given by
+ag s (ASched ) = {{rC
+
+ID , rL N ame , rRoom }, {rT ime , rL N ame }, {rT ime , rRoom },
+
+{rL N ame }, {rRoom }, {rT ime }}
+
+3.5
+
+Algorithm for generating an Armstrong ABox
+
+Anti-keys and strong agreement sets are useful to characterize an Armstrong
+relation for the class of UCs and a null-free subschema. A table instance is
+Armstrong for the class of UCs and a null-free subschema if and only if the
+following conditions hold:
+1. Each anti-key is an element of a strong agreement set.
+2. There is no uniqueness constraint such that the set of columns representing
+a uniqueness constraint is a subset of a strong agreement set.
+3. The set of columns over which the table instance is total is the same as the
+null-free subschema.
+Theorem 1. For TRSn let Σ be a set of UCs and assume nf (TRn , X), X ⊆ S
+where S = {r1 , . . . , rn } holds. An ABox ARn for TRSn , Σ and nf (TRn , X) is an
+Armstrong ABox if and only if the following conditions hold:
+1. ∀a(Y ) ∈ Σ −1 [Y ∈ ag s (ARn )],
+2. (∀u(TRn , Y ) ∈ Σ)(∀Z ∈ ag s (ARn ))[(Y * Z)],
+3. Let Z ⊆ S be such that ARn is Z-total, then Z = X [10, 12].
+
+Example 11. Examples 9 and 10 calculated Σ −1 and ag s (ASched ) for TSched with
+nf (TRn , {rC ID , rT ime }) and Σ = {u(rC ID , rT ime ), u(rT ime , rL N ame , rRoom )}.
+It therefore follows from Theorem 1 that ARn (Table 1) is an Armstrong ABox.
+
+C ID
+rC ID (c1 , hrC
+rC ID (c2 , hrC
+rC ID (c3 , hrC
+rC ID (c4 , hrC
+
+Table 2. ASched generated using Algorithm 1
+Time
+L Name
+Room
+ID ,1 ) rT ime (c1 , hrT ime ,1 ) rL N ame (c1 , hrL N ame ,1 ) rRoom (c1 , hrRoom ,1 )
+ID ,1 ) rT ime (c2 , hrT ime ,2 ) rL N ame (c2 , hrL N ame ,1 ) rRoom (c2 , hrRoom ,1 )
+ID ,2 ) rT ime (c3 , hrT ime ,1 ) rL N ame (c3 , hrL N ame ,1 )
+rRoom (c4 , hrRoom ,1 )
+ID ,3 ) rT ime (c4 , hrT ime ,1 )
+
+Algorithm 1 calculates an Armstrong ABox ARn for TRSn , S = {r1 , . . . , rn },
+with nf (TRn , X) for X ⊆ S and Σ is a set of UCs, using the following steps: (A1)
+generates an arbitrary first tuple. (A2) calculates the anti-keys. (A3) initializes
+indexes k and jri , where k keeps track of the number of individuals representing
+tuples and indexes jri keep track of the number of different individuals used as
+role fillers for each of the roles ri . (A4) generates for each anti-key an individual
+ck with related assertions where hri ,1 is re-used when ri forms part of an anti-key.
+(A5) generates the equivalent of ni for any ri that is not null-free.
+10
+
+S
+Example 12. For TSched
+, Σ = {u(rC ID , rT ime ), u(rT ime , rL N ame , rRoom )} and
+nf (T , {rC ID , rT ime }) we generate ASched (Table 2) using Algorithm 1, assuming
+CRn (c1 ), . . . , CRn (c4 ) are implied. A mapping of each hri ,jri delivers Table 1.
+
+Theorem 2 follows from Lemma 1 and Theorem 1 [12].
+Theorem 2. On input (TRSn , Σ, nf (TRn , X)) Algorithm 1 generates an Armstrong ABox ARn over TRSn that is Armstrong for Σ and nf (TRn , X).
+The preceding definitions motivate the following definition:
+Definition 11. Given TRSn with Σ a set of UCs and nf (TRn , X), X ⊆ S where
+S = {r1 , . . . , rn }, we define the corresponding TBox TRn as TRn = TRSn ∪ TRΣn ∪
+nf
+Σ
+TRnf
+n where TRn consists of the axioms representing Σ and TRn consists of the
+axioms representing nf (TRn , X). The corresponding Armstrong ontology ORn is
+given by ORn = TRn ∪ ARn where ARn is an Armstrong ABox for TRn .
+
+4
+
+Ontology Design and Evaluation using Armstrong
+ABoxes
+
+In this section we discuss how an Armstrong ABox can be used to generate
+motivating scenarios and CQs.
+Each row in Table 1 represents a scenario that supports the current design
+decisions for the ontology since it satisfies all relevant constraints. Each row
+in Table 1 is thus a motivating scenario. In order to ensure no latent UCs are
+missed, the complete table also needs to be considered. To communicate the
+current understanding of the relevant and irrelevant constraints, an ontology
+engineer can use an informal notation such as the table instance in Figure 2. In
+this way an Armstrong ABox can be used to systematically generate scenarios
+which can help an expert to validate the design.
+The design of the ontology can be evaluated through generated CQs. TRn represent the axioms that have to be satisfied in every model. Hence, it follows that
+for every α ∈ TRn we have that TRn  α, which is referred to as an entailment CQ
+in Section 2.1. Each row of Table 1 must be consistent for ORn , which we can express as ORn 2 ¬Q where for all i = {1, . . . n} Q = CRn (cj ) ∧ R(hij ) ∧ ri (cj , hij ),
+which is referred to as a consistency CQ in Section 2.1. Note that this last CQ
+represents a means with which the motivating scenarios can be formally evaluated since, as stated earlier, ARn consists of motivating scenarios.
+
+5
+
+Conclusion
+
+We presented a preliminary theoretical framework for applying Armstrong relations to ontology design within the context of the ontology design approach
+of Grüninger, et al. [9], where motivating scenarios inform design decisions and
+CQs are used to evaluate the ontology design. In future research we will investigate the applicability of Armstrong ABoxes to other DL constraints and aim to
+show how this framework can be used to revise existing populated ontologies.
+11
+
+References
+1. Baader, F., Calvanese, D., McGuinness, D., Nardi, D., Patel-Schneider, P. (eds.):
+The Description Logic Handbook. Cambridge University Press (2007), 2nd edition
+2. Beeri, C., Dowd, M., Fagin, R., Statman, R.: On the Structure of Armstrong Relations for Functional Dependencies. J. ACM 31(1), 30–46 (1984)
+3. Borgida, A., Weddell, G.E.: Adding Uniqueness Constraints to Description Logics
+(Preliminary Report). In: Bry, F., Ramakrishnan, R., Ramamohanarao, K. (eds.)
+DOOD. Lecture Notes in Computer Science, vol. 1341, pp. 85–102. Springer (1997)
+4. Calvanese, D., De Giacomo, G., Lenzerini, M., Nardi, D., Rosati, R.: Description
+Logic Framework for Information Integration. In: Principles of Knowledge Representation and Reasoning. pp. 2–13. Citeseer (1998)
+5. Calvanese, D., De Giacomo, G., Lenzerini, M.: Identification Constraints and Functional Dependencies in Description Logics. In: Proceedings International Joint Conference on Artificial Intelligence. vol. 17, pp. 155–160. Citeseer (2001)
+6. Calvanese, D., Fischl, W., Pichler, R., Sallinger, E., Simkus, M.: Capturing relational schemas and functional dependencies in RDFS. In: Proceedings of the 28th
+AAAI Conference on Artificial Intelligence. (2014)
+7. Eiter, T., Gottlob, G.: Identifying the Minimal Transversals of a Hypergraph and
+Related Problems. In: SIAM Journal on Computing. pp. 1278–1304. Society for
+Industrial and Applied Mathematics (1995)
+8. Fagin, R.: Armstrong Databases. Tech. rep. (May 1982)
+9. Grüninger, M., Fox, M.: Methodology for the Design and Evaluation of Ontologies.
+In: Proceedings of International Joint Conference on Artificial Intelligence, Workshop on Basic Ontological Issues in Knowledge Sharing, April 13, 1995 (1995)
+10. Hartmann, S., Leck, U., Link, S.: On Codd Families of Keys over Incomplete Relations. Comput. J. 54(7), 1166–1180 (2011)
+11. I. Horrocks, O. Kutz, and U. Sattler. The even more irresistible SROIQ. In
+P. Doherty, J. Mylopoulos, and C. A. Welty, editors, Proceedings of the 10th International Conference on Principles of Knowledge Representation and Reasoning,
+pages 57–67. AAAI Press, 2006.
+12. Link, S.: Armstrong Databases: Validation, Communication and Consolidation of
+Conceptual Models with Perfect Test Data. Proceedings of the Eighth Asia-Pacific
+Conference on Conceptual Modelling (2012)
+13. Parsia, B., Sattler, U., Schneider, T.: Easy Keys for OWL. In: Dolbear, C., Ruttenberg, A., Sattler, U. (eds.) Proceedings of the 5th Workshop on OWL: Experiences
+and Directions. CEUR Workshop Proceedings, vol. 432. CEUR Workshop Proceedings (2008)
+
+12
+
+

@@ -1,0 +1,696 @@
+Ontology Module Extraction
+via Datalog Reasoning?
+Ana Armas Romero, Mark Kaminski, Bernardo Cuenca Grau, and
+Ian Horrocks
+Department of Computer Science, University of Oxford, UK
+
+Abstract. We propose a novel approach in which module extraction
+is reduced to a reasoning problem in datalog. Our approach generalises
+existing approaches and can be tailored to preserve only specific kinds
+of entailments, which allows us to extract significantly smaller modules.
+An evaluation on widely-used ontologies shows very encouraging results.
+
+1
+
+Introduction
+
+Module extraction is the task of computing, given an ontology T and a signature
+of interest Σ, a (preferably small) subset M of T (a module) that preserves all
+relevant entailments in T over the set of symbols Σ. Such an M is indistinguishable from T w.r.t. Σ, and T can be safely replaced with M in applications of T
+that use only the symbols in Σ.
+Module extraction has received a lot of attention in recent years [27, 6, 25, 17,
+10, 9, 23], and modules have found a wide range of applications, including ontology reuse [6, 13], matching [12], debugging [29, 19] and classification [1, 30, 4].
+Preservation of relevant entailments is formalised via inseparability relations.
+The strongest notion is model inseparability, which requires that it must be possible to turn any model of M into a model of T by (re-)interpreting only the
+symbols outside Σ; such an M preserves all second-order entailments of T w.r.t.
+Σ [15]. A weaker and more flexible notion is deductive inseparability, which requires only that T and M entail the same Σ-formulas in a given query language.
+Unfortunately, the decision problems associated with module extraction are invariably of high complexity, and often undecidable. For model inseparability,
+checking whether M is a Σ-module in T is undecidable even if T is restricted to
+be in the description logic (DL) EL, for which standard reasoning is tractable.
+For deductive inseparability, the problem is typically decidable for lightweight
+DLs and “reasonable” query languages, albeit of high worst-case complexity;
+e.g., the problem is already ExpTime-hard for EL if we consider concept inclusions as the query language [20]. Practical algorithms that ensure minimality of
+the extracted modules are known only for acyclic ELI [15] and DL-Lite [17].
+Practical module extraction techniques are typically based on sound approximations: they ensure that the extracted fragment M is a module (i.e., inseparable
+?
+
+This paper summarises the results of our work published in [2, 3].
+
+from T w.r.t. Σ), but they give no minimality guarantee. The most popular such
+techniques are based on a family of polynomially checkable conditions called syntactic locality [5, 6, 24]; in particular, ⊥-locality and >⊥∗ -locality. Each localitybased module M enjoys a number of desirable properties for applications: (i) it
+is model inseparable from T ; (ii) it is depleting, i.e., T \ M is inseparable from
+the empty ontology w.r.t. Σ; (iii) it contains all justifications (a.k.a. explanations) in T of every Σ-formula entailed by T ; and (iv) last but not least, it can
+be computed efficiently, even for very expressive ontology languages.
+Locality-based techniques are easy to implement, and surprisingly effective in
+practice. However, the extracted modules can be rather large, which limits their
+usefulness in some applications [8]. One way to address this is to develop techniques that produce smaller modules while still preserving properties (i)–(iii).
+Efforts in this direction have confirmed that locality-based modules can be far
+from optimal in practice [10]; however, these techniques only apply to rather
+restricted languages and utilise algorithms with high worst-case complexity.
+Another approach to computing smaller modules is to weaken properties
+(i)–(iii), which are stronger than required for many applications. In particular,
+model inseparability (property (i)) is a very strong condition, and deductive inseparability would usually suffice, with the query language determining which
+kinds of consequence are preserved; in modular classification, for example, only
+atomic concept inclusions need to be preserved. However, practical module extraction techniques for expressive ontology languages yield modules that satisfy
+all three properties, and hence are potentially much larger than they need to be.
+In this paper, we propose a technique that reduces module extraction to a
+reasoning problem in datalog. The connection between module extraction and
+datalog was first observed in [28], where it was shown that locality ⊥-module
+extraction for EL ontologies could be reduced to propositional datalog reasoning.
+Our approach takes this connection much farther by generalising both localitybased and reachability-based [23] modules for expressive ontology languages in
+an elegant way. A key distinguishing feature of our technique is that it can
+extract deductively inseparable modules, with the query language tailored to
+the requirements of the application at hand, which allows us to relax Property
+(i) and extract significantly smaller modules. In all cases our modules preserve
+the nice features of locality: they are widely applicable (even beyond DLs), they
+can be efficiently computed, they are depleting (Property (ii)) and they preserve
+all justifications of relevant entailments (Property (iii)). We have implemented
+our approach using the RDFox datalog engine [22]. Our evaluation shows that
+module size consistently decreases as we consider weaker inseparability relations,
+which could significantly improve the usefulness of modules in applications.
+
+2
+
+Preliminaries
+
+Ontologies and Queries We use standard first-order logic and assume familiarity with description logics, ontology languages and theorem proving. A
+signature Σ is a set of predicates and Sig(F ) denotes the signature of a set of
+
+formulas F . To capture a wide range of KR languages, we formalise
+Wnontology axioms as rules: function-free sentences of the form ∀x.[ϕ(x) → ∃y.[ i=1 ψi (x, y)]],
+where
+Wnϕ, ψi are conjunctions of distinct atoms. Formula ϕ is the rule body and
+∃y.[ i=1 ψi (x, y)] is the head. Universal quantification is omitted for brevity.
+Rules are required to be safe (all variables in the head occur in the body). A
+TBox T is a finite set of rules; TBoxes mentioning equality (≈) are extended
+with its standard axiomatisation. A fact γ is a function-free ground atom. An
+ABox A is a finite set of facts. A positive existential query (PEQ) is a formula
+q(x) = ∃y.ϕ(x, y), where ϕ is built from function-free atoms using only ∧ and ∨.
+Datalog A rule is datalog if its head has exactly one atom (which could be ⊥, the
+nullary falsehood predicate) and all variables are universally quantified. A datalog
+program P is a set of datalog rules. Given P and an ABox A, their materialisation
+is the set of facts entailed by P ∪A, which can be computedVby means of forwardn
+chaining. A fact γ is a consequence of a datalog rule r = i=1 γi0 → δ and facts
+γ1 , . . . , γn if γ = δσ with σ a most-general unifier (MGU) of γi , γi0 for each
+1 ≤ i ≤ n. A (forward-chaining) proof of γ in P ∪ A is a pair ρ = (T, λ) where T
+is a tree, λ is a mapping from nodes in T to facts such that for each node v the
+following holds: 1. λ(v) = γ if v is the root of T ; 2. if v is a leaf then λ(v) ∈ A
+or (→ λ(v)) ∈ P; and 3. if v has children w1 , . . . , wn then λ(v) is a consequence
+of r and λ(w1 ), . . . , λ(wn ). Forward-chaining is sound (if γ has a proof in P ∪ A
+then it is entailed by P ∪ A) and complete (if γ is entailed by P ∪ A then either
+γ has a proof in P ∪ A or so does ⊥). Finally, the support of γ is the set of rules
+occurring in some proof of γ in P ∪ A.
+Inseparability Relations & Modules We next recapitulate the most common
+inseparability relations studied in the literature. TBoxes T and T 0 are
+0
+– Σ-model inseparable (T ≡m
+Σ T ), if for every model I of T there is a model
+0
+J of T with the same domain s.t. AI = AJ for each A ∈ Σ, and vice versa.
+– Σ-query inseparable (T ≡qΣ T 0 ) if for every Boolean PEQ q and Σ-ABox A
+we have T ∪ A |= q iff T 0 ∪ A |= q.
+– Σ-fact inseparable (T ≡fΣ T 0 ) if for every fact γ and ABox A over Σ we
+have T ∪ A |= γ iff T 0 ∪ A |= γ.
+– Σ-implication inseparable (T ≡iΣ T 0 ) if for each ϕ of the form A(x) → B(x)
+with A, B ∈ Σ, T |= ϕ iff T 0 |= ϕ.
+q
+These relations are naturally ordered from strongest to weakest: ≡m
+Σ ( ≡Σ (
+≡fΣ ( ≡iΣ for each non-trivial Σ.
+Given an inseparability relation ≡ for Σ, a subset M ⊆ T is a ≡-module of
+T if T ≡ M. Furthermore, M is minimal if no M0 ( M is a ≡-module of T .
+
+3
+
+Module Extraction via Datalog Reasoning
+
+In this section, we present our approach to module extraction by reduction into
+a reasoning problem in datalog. Our approach builds on recent techniques that
+exploit datalog engines for ontology reasoning [16, 26, 31]. In what follows, we
+fix an arbitrary TBox T and signature Σ ⊆ Sig(T ). Unless otherwise stated,
+
+(r1 )
+(r2 )
+(r3 )
+(r4 )
+(r5 )
+(r6 )
+(r7 )
+
+A(x) → ∃y1 .[R(x, y1 ) ∧ B(y1 )]
+A(x) → ∃y2 .[R(x, y2 ) ∧ C(y2 )]
+B(x) ∧ C(x) → D(x)
+D(x) → ∃y3 .[S(x, y3 ) ∧ E(y3 )]
+D(x) ∧ S(x, y) → F(y)
+S(x, y) ∧ E(y) ∧ F(y) → G(x)
+G(x) ∧ H(x) → ⊥
+
+A v ∃R.B
+A v ∃R.C
+BuCvD
+D v ∃S.E
+D v ∀S.F
+∃S.(E u F) v G
+GuHv⊥
+
+Fig. 1. Example TBox T ex with DL translation
+
+our definitions and theorems are parameterised by such T and Σ. We assume
+w.l.o.g. that rules in T share no existentially quantified variables. For simplicity,
+we also assume that T contains no constants (all results extend to constants [3]).
+3.1
+
+Overview and Main Intuitions
+
+Our overall strategy to extract a module M of T for an inseparability relation
+≡zΣ , with z ∈ {m, q, f, i}, can be summarised by the following steps:
+1. Pick a substitution θ mapping all existentially quantified variables in T to
+constants, and transform T into a datalog program P by (i) Skolemising all rules in T using θ and (ii) turning disjunctions into conjunctions
+while splitting them into different rules,
+Wn thus replacing each function-free
+disjunctive rule of the form ϕ(x) → i=1 ψi (x) with datalog rules ϕ(x) →
+ψ1 (x), . . . , ϕ(x) → ψn (x).
+2. Pick a Σ-ABox A0 and materialise P ∪ A0 .
+3. Pick a set Ar of “relevant facts” in the materialisation and compute the
+supporting rules in P for each such fact.
+4. The module M consists of all rules in T that yield a supporting rule in P.
+Thus, M is fully determined by the substitution θ and the ABoxes A0 , Ar .
+The main intuition behind our module extraction approach is that we can pick
+θ, A0 and Ar (and hence M) such that each proof ρ of a Σ-consequence ϕ of T
+to be preserved can be embedded in a forward chaining proof ρ0 in P ∪ A0 of a
+relevant fact in Ar . Such an embedding satisfies the key property that, for each
+rule r involved in ρ, at least one corresponding datalog rule in P is involved in
+ρ0 . In this way we ensure that M contains the necessary rules to entail ϕ. This
+approach, however, does not ensure minimality of M: since P is a strengthening
+of T there may be proofs of a relevant fact in P ∪ A0 that do not correspond to
+a Σ-consequence of T , which may lead to unnecessary rules in M.
+To illustrate how our strategy might work in practice, consider T ex in Fig. 1,
+Σ = {B, C, D, G}, and that we want a module M that is Σ-implication inseparable from T ex . This is a simple case since ϕ = D(x) → G(x) is the only non-trivial
+Σ-implication entailed by T ex ; thus, for M to be a module we only need M |= ϕ.
+Note that proving T ex |= ϕ amounts to proving T ex ∪ {D(a)} |= G(a) (with a a
+fresh constant). Figure 2(a) depicts a hyper-resolution tree ρ showing how G(a)
+can be derived from the clauses corresponding to r4 –r6 and D(a), with rule r4
+
+G(a)
+r6
+S(a, f (a)) E(f (a))
+r40
+
+r400
+
+D(a)
+
+D(a)
+
+(a)
+
+G(a)
+θ
+F(f (a))
+
+r5
+S(a, f (a)) D(a) θ
+r40
+
+S(a, c)
+
+E(c)
+
+D(a)
+
+D(a)
+
+F(c)
+
+θ
+S(a, c)
+
+D(a)
+
+θ
+
+D(a)
+
+(b)
+
+D(a)
+
+Fig. 2. Proofs of G(a) from D(a) in (a) T ex and (b) the corresponding datalog program
+
+transformed into clauses r40 = D(x) → S(x, f (x3 )) and r400 = D(x) → E(f (x3 )).
+Hence M = {r4 –r6 } is a Σ-implication inseparable module of T ex , and as G(a)
+cannot be derived from any subset of {r4 –r6 }, M is also minimal.
+We pick A0 to contain the initial fact D(a), Ar to contain the fact to be
+proved G(a), and we make θ map variable y3 in r4 to a fresh constant c, in which
+case rule r4 corresponds to the rules D(x) → S(x, c) and D(x) → E(c) in P.
+Figure 2(b) depicts a forward chaining proof ρ0 of G(a) in P ∪ {D(a)}. As
+shown, ρ can be embedded in ρ0 via θ by mapping functional terms over f to the
+fresh constant c. This way, the rules involved in ρ are mapped to the datalog rules
+involved in ρ0 via θ. Hence, we will extract the (minimal) module M = {r4 –r6 }.
+3.2
+
+The Notion of Module Setting
+
+The substitution θ and the ABoxes A0 and Ar , which determine the extracted
+module, can be chosen in different ways to ensure the preservation of different
+kinds of Σ-consequences. The following notion of a module setting captures in
+a declarative way the main elements of our approach.
+Definition 3.1. A module setting for T and Σ is a tuple χ = hθ, A0 , Ar i with
+θ a substitution from existentially quantified variables in T to constants, A0 a
+Σ-ABox, Ar a (Sig(T ) ∪ {⊥})-ABox, and s.t. no constant in χ occurs in T .
+χ
+χ
+The program of
+Wn is the smallest datalog program P containing, for each
+r = ϕ(x) → ∃y.[ i=1 ψi (x, y)] in T , the rule ϕ → ⊥ if n = 0 and all rules
+ϕ → γθ for each 1 ≤ i ≤ n and each atom γ in ψi . The support of χ is the set
+of rules r ∈ P χ that support a fact from Ar in P χ ∪ A0 . The module Mχ of χ is
+the set of rules in T that have a corresponding datalog rule in the support of χ.
+3.3
+
+Modules for each Inseparability Relation
+
+We next consider each inseparability relation ≡zΣ , where z ∈ {m, q, f, i}, and
+formulate a specific setting χz which provably yields a ≡zΣ -module of T .
+Implication Inseparability The example in Sect. 3.1 suggests a natural setting χi = hθ, A0 , Ar i that guarantees implication inseparability. As in our example, we pick θ to be as “general” as possible by Skolemising each existentially
+
+quantified variable to a fresh constant. For A and B predicates of the same arity
+n, proving that T entails a Σ-implication ϕ = A(x1 , . . . , xn ) → B(x1 , . . . , xn ),
+amounts to showing that T ∪{A(a1 , . . . , an )} |= B(a1 , . . . , an ) for fresh constants
+a1 , . . . , an . Thus, following the ideas of our example, we initialise A0 with a fact
+A(c1A , . . . , cnA ) for each n-ary predicate A ∈ Σ, and Ar with a fact B(c1A , . . . , cnA )
+for each pair of n-ary predicates {B, A} ⊆ Σ with B 6= A.
+Definition 3.2. For each existentially quantified variable yj in T , let cyj be a
+fresh constant. Furthermore, for each A ∈ Σ of arity n, let c1A , . . . , cnA be also
+fresh constants. The setting χi = hθi , Ai0 , Air i is defined as follows:
+– θi = { yj 7→ cyj | yj existentially quantified in T },
+– Ai0 = {A(c1A , . . . , cnA ) | A n-ary predicate in Σ}, and
+– Air = {B(c1A , . . . , cnA ) | A 6= B n-ary predicates in Σ} ∪ {⊥}.
+The setting χi is reminiscent of the datalog encodings typically used to check
+whether a concept A is subsumed by concept B w.r.t. a “lightweight” ontology
+T [18, 26]. There, variables in rules are Skolemised as fresh constants to produce
+a datalog program P and it is then checked whether P ∪ {A(a)} |= B(a).
+Theorem 3.3. Mχi ≡iΣ T .
+Fact Inseparability The setting χi in Def. 3.2 cannot be used to ensure fact
+inseparability. Consider again T ex and Σ = {B, C, D, G}, for which Mχi =
+{r4 , r5 , r6 }. For A = {B(a), C(a)} we have T ex ∪ A |= G(a) but Mχi ∪ A 6|= G(a),
+and hence Mχi is not fact inseparable from T ex .
+More generally, Mχi will only preserve Σ-fact entailments T ∪ A |= γ where
+A is a singleton. However, for a module to be fact inseparable from T it must
+preserve all Σ-facts when coupled with any Σ-ABox. We achieve this by choosing
+A0 to be the critical ABox for Σ, which consists of all facts that can be constructed using Σ and a single fresh constant [21]. Since every Σ-ABox can be
+homomorphically mapped into the critical Σ-ABox, we can show that all proofs
+of a Σ-fact in T ∪ A are embeddable into a proof of a relevant fact in P χ ∪ A0 .
+Definition 3.4. Let constants cyi be as in Def. 3.2, and let ∗ be a fresh constant.
+The setting χf = hθf , Af0 , Afr i is defined as follows: (i) θf = θi , (ii) Af0 =
+{ A(∗, . . . , ∗) | A ∈ Σ }, and (iii) Afr = Af0 ∪ {⊥}.
+The datalog programs for χi and χf coincide; hence, the only difference between
+the two settings is in the definition of their corresponding ABoxes. In our example, both Af0 and Afr contain facts B(∗), C(∗), D(∗), and G(∗). Clearly, P χf ∪A0 |=
+G(∗) and the proof additionally involves rule r3 . Thus Mχf = {r3 , r4 , r5 , r6 }.
+Theorem 3.5. Mχf ≡fΣ T .
+Query Inseparability Positive existential queries constitute a much richer
+query language than facts as they allow for existentially quantified variables.
+Thus, the query inseparability requirement invariably leads to larger modules.
+
+For instance, let T = T ex and Σ = {A, B}. Given the Σ-ABox A = {A(a)}
+and Σ-query q = ∃y.B(y) we have T ex ∪A |= q (due to rule r1 ). The module Mχf
+is, however, empty. Indeed, the materialisation of P χf ∪{A(∗)} consists of the additional facts R(∗, cy1 ) and B(cy1 ) and hence contains no relevant fact mentioning
+only ∗. Thus, Mχf ∪ A 6|= q and Mχf is not query inseparable from T ex .
+Our example suggests that, although the critical ABox is constrained enough
+to embed every Σ-ABox, we need to consider additional relevant facts to capture
+all proofs of a Σ-query. In particular, rule r1 implies that B contains an instance
+whenever A does: a dependency that is then checked by q. This can be captured
+by considering fact B(cy1 ) as relevant, in which case r1 would be in the module.
+More generally, we consider a module setting χ that differs from χf only in
+that all Σ-facts (and not just those over ∗) are considered as relevant.
+Definition 3.6. Let constants cyi and ∗ be as in Def. 3.4. The setting χq =
+hθq , Aq0 , Aqr i is as follows: (i) θq = θf , (ii) Aq0 = Af0 , and (iii) Aqr consists of ⊥
+and all Σ-facts A(a1 , . . . , an ) with each aj either a constant cyi or ∗.
+Theorem 3.7. Mχq ≡qΣ T .
+Model Inseparability The modules generated by χq may not be model inseparable from T . To see this, let T = T ex and Σ = {A, D, R}, in which
+case Mχq = {r1 , r2 }. The interpretation I where ∆I = {a, b}, AI = {a},
+BI = CI = {b}, DI = ∅ and RI = {(a, b)} is a model of Mχq . However, I cannot
+be extended to a model of r3 (and hence of T ) without reinterpreting A, R or D.
+To achieve model inseparability, it suffices to ensure that each model of the
+module can be extended to a model of T in a uniform way. Thus, M = {r1 , r2 , r3 }
+ex
+since all its models can be extended by interpreting E, F
+is a ≡m
+Σ -module of T
+and G as the domain, H as empty, and S as the Cartesian product of the domain.
+We can capture this idea in our framework by means of the following setting.
+m
+m
+maps each
+Definition 3.8. The setting χm = hθm , Am
+0 , Ar i is as follows: θ
+m
+f
+m
+existentially quantified yj to the fresh constant ∗, A0 = A0 , and Ar = Am
+0 ∪{⊥}.
+
+In our example, P χm ∪ Am
+0 entails the relevant facts A(∗), R(∗, ∗) and D(∗), and
+hence Mχm = {r1 , r2 , r3 }.
+Theorem 3.9. Mχm ≡m
+Σ T.
+3.4
+
+Modules for Ontology Classification
+
+Module extraction has been exploited for optimising ontology classification [1, 30,
+4]. In this case, it is not only required that modules are implication inseparable
+from T , but also that they preserve all implications A(x) → B(x) with A ∈ Σ
+but B ∈
+/ Σ. This requirement can be captured as given next.
+Definition 3.10. TBoxes T and T 0 are Σ-classification inseparable (T ≡cΣ T 0 )
+if for each ϕ of the form A(x) → ψ where A ∈ Σ and either ψ = ⊥ or ψ = B(x)
+for B ∈ Sig(T ∪ T 0 ), we have T |= ϕ iff T 0 |= ϕ.
+
+Classification inseparability is a stronger requirement than implication inseparability. For T = {A(x) → B(x)} and Σ = {A}, M = ∅ is implication inseparable
+from T , whereas classification inseparability requires that M = T .
+Modular reasoners such as MORe [1] and Chainsaw [30] rely on locality ⊥modules, which satisfy this requirement. Each model of a ⊥-module M can be
+extended to a model of T by interpreting all additional predicates as empty,
+which is not possible if A ∈ Σ and T entails A(x) → B(x) but M does not. We
+can cast ⊥-modules in our framework with the following setting, which extends
+χm in Def. 3.8 by also considering as relevant facts involving predicates not in Σ.
+Definition 3.11. The setting χb = hθb , Ab0 , Abr i is as follows: θb = θm , Ab0 =
+Am
+0 , and Ar consists of ⊥ and all facts A(∗, . . . , ∗) where A ∈ Sig(T ).
+The use of ⊥-modules is, however, stricter than is needed for ontology classification. For instance, if we consider T = T ex and Σ = {A} we have that Mχb
+contains all rules r1 –r6 , but since A does not have any subsumers in T ex the
+empty TBox is already classification inseparable from T ex .
+The following module setting extends χi in Def. 3.2 to ensure classification
+inseparability. As in the case of χb in Def. 3.11, the only required modification
+is to also consider as relevant facts involving predicates outside Σ.
+Definition 3.12. Setting χc = (θc , Ac0 , Acr ) is as follows: θc = θi , Ac0 = Ai0 ,
+and Acr consists of ⊥ and all facts B(c1A , . . . , cnA ) s.t. A 6= B are n-ary predicates,
+A ∈ Σ and B ∈ Sig(T ).
+Indeed, given T = T ex and Σ = {A}, the module for χc is empty, as desired.
+Theorem 3.13. Mχc ≡cΣ T .
+3.5
+
+Additional Properties of Modules
+
+Although the essential property of a module M is that it captures all relevant
+Σ-consequences of T , in some applications modules are expected to satisfy additional requirements. For ontology reuse, it is sometimes desirable that a module
+M does not “leave any relevant information behind” in the sense that T \M does
+not entail any relevant Σ-consequence—a property known as depletingness [17].
+Definition 3.14. Let ≡zΣ be an inseparability relation. A ≡zΣ -module M of T
+is depleting if T \ M ≡zΣ ∅.
+Note that not all modules are depleting: for some relevant Σ-entailment ϕ we
+may have M |= ϕ (as required by the definition of module), but also (T \M) |= ϕ,
+in which case M is not depleting. The following theorem establishes that all
+modules defined in Sect. 3.3 are depleting.
+Theorem 3.15. Mχz is depleting for each z ∈ {m, q, f, i, c}.
+Another application of modules is to optimise the computation of justifications: minimal subsets of a TBox that suffice to entail a given formula [14, 29].
+
+Definition 3.16. Let T |= ϕ. A justification for ϕ in T is a minimal subset
+T 0 ⊆ T such that T 0 |= ϕ.
+Justifications are displayed in ontology development platforms as explanations
+of why an entailment holds, and tools typically compute all of them. Extracting
+justifications is a computationally intensive task, and locality-based modules
+have been used to reduce the size of the problem: if T 0 is a justification of ϕ in
+T , then T 0 is contained in a locality module of T for Σ = Sig(ϕ). Our modules
+are also justification-preserving, and we can adjust our modules depending on
+what kind of first-order sentence ϕ is.
+Theorem 3.17. Let T 0 be a justification for a first-order sentence ϕ in T and
+let Sig(ϕ) ⊆ Σ. Then, T 0 ⊆ Mχm . Additionally, the following properties hold:
+(i) if ϕ is a rule, then T 0 ⊆ Mχq ; (ii) if ϕ is datalog, then T 0 ⊆ Mχf ; and
+(iii) if ϕ is of the form A(x) → B(x) or A(x) → ⊥, then T 0 ⊆ Mχi ; finally, if ϕ
+satisfies A ∈ Σ, B ∈ Sig(T ), then T 0 ⊆ Mχc .
+3.6
+
+Complexity of Module Extraction
+
+We conclude this section by showing that our modules can be efficiently computed in most practically relevant cases.
+Theorem 3.18. Let m be a non-negative integer and L a class of TBoxes s.t.
+each rule in a TBox from L has at most m distinct universally quantified variables. The following problem is tractable: given z ∈ {q, f, i, c}, T ∈ L, and r ∈ T ,
+decide whether r ∈ Mχz . The problem is tractable for arbitrary L if z = m.
+We now provide a proof sketch for this result. Checking whether a datalog
+program P and an ABox A entail a fact is feasible in O(|P| · nv ), with n the
+number of constants in P ∪ A and v the maximum number of variables in a rule
+from P [7]. Thus, although datalog reasoning is exponential in the size of v (and
+hence of P), it is tractable if v is bounded by a constant.
+Given arbitrary T and Σ, and for z ∈ {m, q, f, i, c}, the datalog program P χz
+can be computed in linear time in the size of |T |. The number of constants n in χz
+(and hence in P χz ∪Az0 ) is linearly bounded in |T |, whereas the maximum number
+of variables v coincides with the maximum number of universally quantified
+variables in a rule from T . As shown in [31], computing the support of a fact in a
+datalog program is no harder than fact entailment, and thus module extraction in
+our approach is feasible in O(|T |·nv ), i.e., tractable for ontology languages where
+rules have a bounded number of variables (as is the case for most DLs). Finally,
+for z = m the setting χm involves a single constant ∗ and module extraction boils
+down to propositional datalog reasoning (a tractable problem regardless of T ).
+3.7
+
+Module Containment and Optimality
+
+Intuitively, the more expressive the language for which preservation of consequences is required the larger modules need to be. The following proposition
+shows that our modules are consistent with this intuition.
+
+Proposition 3.19. Mχi ⊆ Mχf ⊆ Mχq ⊆ Mχm ⊆ Mχb ; Mχi ⊆ Mχc ⊆ Mχb .
+Finally, we ask ourselves whether each χz with z ∈ {q, f, i, m, c} is optimal for
+its inseparability relation in the sense that there is no setting producing smaller
+modules. To make such statements precise we need to consider families of module
+settings, i.e., functions that assign a module setting to each pair of T and Σ.
+Definition 3.20. A setting family is a function Ψ that maps a TBox T and
+signature Σ to a module setting for T and Σ. Family Ψ is uniform if (i) for
+every Σ and pair T , T 0 with the same number of existentially quantified variables,
+Ψ (T , Σ) and Ψ (T 0 , Σ) are isomorphic; (ii) for every T and Σ ⊆ Σ 0 , Ψ (T , Σ)
+is a restriction of Ψ (T , Σ 0 ) to Σ. Let z ∈ {i, f, q, m, c}; then Ψ is z-admissible
+if, for each T and Σ, MΨ (T ,Σ) is a ≡zΣ -module of T . Finally, Ψ is z-optimal if
+0
+MΨ (T ,Σ) ⊆ MΨ (T ,Σ) for every T , Σ and every uniform Ψ 0 that is z-admissible.
+Uniformity ensures that settings do not depend on the specific shape of rules in
+T , but rather only on Σ and the number of existentially quantified variables in T .
+In turn, admissibility ensures that each setting yields a module. The (uniform
+and admissible) family Ψ z for each setting χz in Sects. 3.3 and 3.4 is defined in
+the obvious way: for each T and Σ, Ψ z (T , Σ) is the setting χz for T and Σ.
+Theorem 3.21. Ψ z is z-optimal for z ∈ {i, m, c}.
+In contrast, Ψ q and Ψ f are not optimal. To see this, let T = {A(x) →
+B(x), B(x) → A(x)} and Σ = {A}. The empty TBox is fact inseparable from
+T since the only Σ-consequence of T is the tautology A(x) → A(x). However,
+Mχf = T since fact A(a) is in Afr and its support is included in the module.
+One can provide a family of settings that distinguishes tautological from nontautological inferences; however, this family yields settings of exponential size in
+|T |, which is undesirable in practice.
+
+4
+
+Evaluation
+
+We have implemented a prototype system for module extraction, called PrisM,
+that uses RDFox [22] for datalog materialisation and exploits some code from
+PAGOdA [31] for computing the support of an entailed fact. We have evaluated
+PrisM on a set of ontologies identified by Glimm et al. [11] as non-trivial for
+reasoning. We have normalised all ontologies to make axioms equivalent to rules.1
+We compared the size of our modules with the locality-based modules computed using the OWL API. We have followed the experimental methodology
+from [8] where two kinds of signatures are considered: genuine signatures corresponding to the signature of individual axioms, and random signatures. Unlike
+in [8], we extracted random signatures using a randomised graph sampling algorithm provided by RDFox. The advantage of this approach is that the resulting
+1
+
+The ontologies used in our experiments are available for download at
+https://krr-nas.cs.ox.ac.uk/2015/jair/PrisM/testOntologies.zip.
+
+Galen-no-Fit Fly-anat.-Xp Fma-lite
+Gazetteer
+Molecule-role Snomed Nci-12.04e
+ALEH
+ALERI +
+ALEH+
+ALE +
+ALE +
+SH
+SH(D)
+rules
+66191
+42107
+168828
+382158
+153020
+191891
+193453
+gen
+rnd
+gen
+rnd
+gen
+rnd
+gen
+rnd
+gen
+rnd gen rnd gen rnd
+⊥ 14253 27771 22348 23139 47192 49345 214820 215886 143399 143448 433 11766 1140 16820
+χc
+9799 17879
+112
+595
+12
+402
+<1
+38
+6
+28 426 11342 390 7974
+>⊥∗ 13749 27184
+221
+982
+20 1658
+9
+1050
+2
+16 427 11762 1138 16817
+χm 13686 27175
+217
+973
+12 1450
+8
+1049
+1
+14 426 11651 1138 16817
+χq
+9448 18315
+107
+757
+12 1450
+8
+1049
+1
+14 426 11644 385 8969
+χf
+5962 18225
+80
+664
+1
+74
+<1
+16
+<1
+5 426 11342 371 8415
+χi
+3279 17646
+12
+333
+1
+74
+<1
+16
+<1
+5 397 11342 120 6228
+|Σ|
+3
+107
+3
+28
+2
+154
+3
+312
+3
+19
+3
+202
+3
+326
+
+Table 1. Results for genuine and random signatures Σ
+
+signatures are “semantically connected”, which is likely to be the case in practical applications. For each type of signature and ontology, we took a sample
+of 400 runs and averaged module sizes. Random signatures were obtained from
+samples of size 1/1000 the size of the original ontology. We present results for
+the 7 largest ontologies from [11] in terms of signature (this selection is representative for the behaviour on the smaller ontologies; see [3]). All experiments
+were performed on a server with 2 Intel Xeon E5-2670 processors and 90GB of
+allocated RAM, running RDFox on 16 threads.
+Table 1 summarises our results. We compared ⊥-modules with the modules
+for χc (Sect. 3.4) and >⊥∗ -modules with those for χm , χq , χf , and χi (Sect. 3.3).
+We can see that module size consistently decreases as we consider weaker inseparability relations. In some cases, the modules for χc are over 3 orders of
+magnitude smaller than ⊥-modules. The difference between >⊥∗ -modules and
+χi modules can also be considerable, reaching 2 orders of magnitude. In fact,
+χc , χf , and χi modules are sometimes empty, meaning that no two predicates
+in Σ are in an implication relationship (which can happen for large ontologies
+and small Σ). Also note that our modules for model inseparability slightly improve on >⊥∗ -modules. Finally, recall that our modules may not be minimal for
+their inseparability relation. Since techniques for extracting minimal modules are
+available only for model inseparability, and for restricted languages, we could not
+assess how close our modules are to minimal ones.
+Computation times were generally higher for χc than for the other settings
+due to the larger signature involved in computing modules for χc . For random
+signatures, average times (over all settings) were 54s for GALEN, 2s for FLY, 5s
+for FMA, 13s for Gazetteer, 7s for Molecule, 32s for SNOMED, and 44s for NCI,
+which is considerably higher than for locality-based modules, but still acceptable
+for some applications. For genuine signatures, the times were accordingly lower.
+It should be noted that PrisM currently relies on RDFox, which is not optimised for module extraction and is used in a black-box fashion. We conjecture
+that the performance of our approach can be considerably improved by dedicated systems. Another interesting task would be integrating our techniques
+in existing modular reasoners as well as in systems for justification extraction.
+Finally, the issue of optimality of our approach requires further investigation.
+
+Acknowledgements
+This work was supported by the Royal Society, the EPSRC projects MaSI3 ,
+Score!, DBOnto, and ED3, and by the EU FP7 project OPTIQUE.
+
+References
+1. Armas Romero, A., Cuenca Grau, B., Horrocks, I.: MORe: Modular combination
+of OWL reasoners for ontology classification. In: ISWC. pp. 1–16 (2012)
+2. Armas Romero, A., Kaminski, M., Cuenca Grau, B., Horrocks, I.: Ontology module
+extraction via datalog reasoning. In: AAAI. pp. 1410–1416 (2015)
+3. Armas Romero, A., Kaminski, M., Cuenca Grau, B., Horrocks, I.: Module extraction in expressive ontology languages via datalog reasoning. J. Artif. Intell. Res.
+(2016), to appear
+4. Cuenca Grau, B., Halaschek-Wiener, C., Kazakov, Y., Suntisrivaraporn, B.: Incremental classification of description logics ontologies. J. Autom. Reason. 44(4),
+337–369 (2010)
+5. Cuenca Grau, B., Horrocks, I., Kazakov, Y., Sattler, U.: Just the right amount:
+Extracting modules from ontologies. In: WWW. pp. 717–726 (2007)
+6. Cuenca Grau, B., Horrocks, I., Kazakov, Y., Sattler, U.: Modular reuse of ontologies: Theory and practice. J. Artif. Intell. Res. 31, 273–318 (2008)
+7. Dantsin, E., Eiter, T., Gottlob, G., Voronkov, A.: Complexity and expressive power
+of logic programming. ACM Comput. Surv. 33(3), 374–425 (2001)
+8. Del Vescovo, C., Klinov, P., Parsia, B., Sattler, U., Schneider, T., Tsarkov, D.:
+Empirical study of logic-based modules: Cheap is cheerful. In: DL. pp. 144–155
+(2013)
+9. Del Vescovo, C., Parsia, B., Sattler, U., Schneider, T.: The modular structure of
+an ontology: Atomic decomposition. In: IJCAI. pp. 2232–2237 (2011)
+10. Gatens, W., Konev, B., Wolter, F.: Lower and upper approximations for depleting
+modules of description logic ontologies. In: ECAI. pp. 345–350 (2014)
+11. Glimm, B., Horrocks, I., Motik, B., Stoilos, G., Wang, Z.: HermiT: An OWL 2
+reasoner. J. Autom. Reason. 53(3), 245–269 (2014)
+12. Jiménez-Ruiz, E., Cuenca Grau, B.: LogMap: Logic-based and scalable ontology
+matching. In: ISWC. pp. 273–288 (2011)
+13. Jiménez-Ruiz, E., Cuenca Grau, B., Sattler, U., Schneider, T., Berlanga Llavori,
+R.: Safe and economic re-use of ontologies: A logic-based methodology and tool
+support. In: ESWC. pp. 185–199 (2008)
+14. Kalyanpur, A., Parsia, B., Horridge, M., Sirin, E.: Finding all justifications of OWL
+DL entailments. In: ISWC. pp. 267–280 (2007)
+15. Konev, B., Lutz, C., Walther, D., Wolter, F.: Model-theoretic inseparability and
+modularity of description logic ontologies. Artif. Intell. 203, 66–103 (2013)
+16. Kontchakov, R., Lutz, C., Toman, D., Wolter, F., Zakharyaschev, M.: The combined approach to ontology-based data access. In: IJCAI. pp. 2656–2661 (2011)
+17. Kontchakov, R., Wolter, F., Zakharyaschev, M.: Logic-based ontology comparison
+and module extraction, with an application to DL-Lite. Artif. Intell. 174(15), 1093–
+1141 (2010)
+18. Krötzsch, M., Rudolph, S., Hitzler, P.: ELP: Tractable rules for OWL 2. In: ISWC.
+pp. 649–664 (2008)
+
+19. Ludwig, M.: Just: a tool for computing justifications w.r.t. ELH ontologies. In:
+ORE. pp. 1–7 (2014)
+20. Lutz, C., Wolter, F.: Deciding inseparability and conservative extensions in the
+description logic EL. J. Symb. Comput. 45(2), 194–228 (2010)
+21. Marnette, B.: Generalized schema-mappings: From termination to tractability. In:
+PODS. pp. 13–22 (2009)
+22. Motik, B., Nenov, Y., Piro, R., Horrocks, I., Olteanu, D.: Parallel materialisation
+of datalog programs in centralised, main-memory RDF systems. In: AAAI. pp.
+129–137 (2014)
+23. Nortje, R., Britz, K., Meyer, T.: Reachability modules for the description logic
+SRIQ. In: LPAR. pp. 636–652 (2013)
+24. Sattler, U., Schneider, T., Zakharyaschev, M.: Which kind of module should I
+extract? In: DL (2009)
+25. Seidenberg, J., Rector, A.L.: Web ontology segmentation: Analysis, classification
+and use. In: WWW. pp. 13–22 (2006)
+26. Stefanoni, G., Motik, B., Horrocks, I.: Introducing nominals to the combined query
+answering approaches for EL. In: AAAI. pp. 1177–1183 (2013)
+27. Stuckenschmidt, H., Parent, C., Spaccapietra, S. (eds.): Modular Ontologies: Concepts, Theories and Techniques for Knowledge Modularization, LNCS, vol. 5445.
+Springer (2009)
+28. Suntisrivaraporn, B.: Module extraction and incremental classification: A pragmatic approach for ontologies. In: ESWC. pp. 230–244 (2008)
+29. Suntisrivaraporn, B., Qi, G., Ji, Q., Haase, P.: A modularization-based approach
+to finding all justifications for OWL DL entailments. In: ASWC. pp. 1–15 (2008)
+30. Tsarkov, D., Palmisano, I.: Chainsaw: A metareasoner for large ontologies. In: ORE
+(2012)
+31. Zhou, Y., Nenov, Y., Cuenca Grau, B., Horrocks, I.: Pay-as-you-go OWL query
+answering using a triple store. In: AAAI. pp. 1142–1148 (2014)
+
+

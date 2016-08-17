@@ -1,0 +1,89 @@
+Exposing French agronomic resources as Linked Open
+Data
+Aravind Venkatesan 1 , Nordine El Hassouni2 , Florian Phillipe3 , Cyril Pommier3 , Hadi
+Quesneville3 , Manuel Ruiz12 , Pierre Larmande145
+1
+
+Institut de biologie Computationelle, M ontpellier, France
+Aravind.Venkatesan@lirmm.fr
+2
+UM R AGAP, CIRAD, M ontpellier, France
+{nordine.el_hassouni,manuel.ruiz}@cirad.fr
+3
+URGI, INRA, Versailles, France
+{fphilippe,Cyril.pommier,hadi.quesneville}@versailles.inra.fr
+4
+UM R DIADE, IRD, M ontpellier, France
+5
+Equipe Zenith, INRIA et LIRM M , M ontpellier, France
+pierre.larmande@ird.fr
+
+Abstract. The advancements in empirical technologies has generated vast
+amounts of heterogeneous data. This situation has created a need to integrate
+the data to understand the system of interest in its entirety. Therefore, information systems play a crucial role in managing these data, enabling the biologists in the extraction of new knowledge. The plant bioinformatics node of the
+Institut Français de Bioinformatique (IFB) maintains public information systems that houses domain specific data. Currently, efforts are being taken to expose the IFB plant bioinformatics resources as Linked Open Data, utilising domain specific ontologies and metadata. Here, we present the overview and the
+initial results of the project.
+Keywords: Data integration, Data interoperability, Knowledge management,
+Linked Data, RDF, Bioinformatics application, Agronomic research
+
+1
+
+Introduction
+
+Agronomy is an overarching field that encompasses various research areas such as
+genetics, plant molecular b iology, and agro-ecology. The last several decades has
+seen the successful imp lementation of high-throughput technologies that have revolutionised research in agronomy. These technological advancements have resulted in a
+number of init iatives been taken to systematically store and share information over
+the web. A mong others, the Institut Français de Bioinformatique (IFB) is a FrenchELIXIR node (http://www.elixir-europe.org/about/elixir-france) that is focused on
+providing integrated services for the life science co mmunity. The plant research wing
+of the IFB p latform prov ides access to a number of databases and tools distributed
+across six regional bioin formatics portals. Data in these portals ranges fro m ‘o mics’ to
+
+genetics (genetic markers, maps and phenotypes) for various crop species. The objective of the current effort is to develop RDF knowledge bases that integrates existing
+domain specific ontologies and data fro m the respective regional portals, pro moting
+data interoperability between the resources. To this end, we have developed the Agronomic Linked Data knowledge base (www.agrold.org) that is representative of the
+data housed in the southern region portal o f France, the South Green Bioinfo rmatics
+platform (SG) (http://www.southgreen.fr/).
+
+2
+
+AgroLD for SG resources
+
+Currently, SG consists of 12 databases covering various plant species such as Banana,
+Cocoa, Maize and Rice. AgroLD is being developed in phases to expose all of these
+databases as Linked Data. Currently, Phase I of AgroLD includes data from:
+1. Trop GeneDB (Hamelin et al. 2013), a database that hosts genetic, mo lecular and
+phenotypic information on tropical crop species.
+2. Ory GenesDB (Droc et al. 2006), a database that serves as a repository on functional genomics for rice.
+3. Ory za Tag Line (Larmande et al. 2008), a database that contains sequence informat ion (Flan king Sequence Tags) that are based on molecu lar categorisation of
+mutagen insertion sites for rice.
+4. GreenPhylDB (Conte et al. 2008), provides sequence homology information for the
+members of kingdom plantae.
+Additionally, do main specific ontologies, ontology annotations, proteomics and
+genomics informat ion fro m a variety of publically availab le data sources have been
+integrated, this includes Gene Ontology, Plant Ontology, UniprotKB, Gramene
+(Gene, ontology annotation, gene, Quantitative Trait Loci (QTL) and Metabolic
+Pathway informat ion) (Monaco et al. 2014). The objective of this is to provide the
+critical mass required to imp lement real world use cases. Currently, Agro LD includes
+data pertaining to selected species namely, Oryza species (O.sativa, O.barthii,
+O.brachyantha, O. glaberimma and O.meridionalis), Arabidopsis thaliana, Sorghum
+bicolor, Zea mays and Triticum species (T.aestivum and T. uraruta). In the subsequent
+phases informat ion pertaining to other species and SG databases will be considered.
+The AgroLD effort will be further extended set-up RDF knowledge bases to host data
+from other regional portals.
+
+References
+Barrell, D. et al., 2009. The GOA database in 2009 - An integrated Gene Ontology
+Annotation resource. Nucleic Acids Research, 37(SUPPL. 1).
+Conte, M.G. et al., 2008. GreenPhylDB: A database for plant comparative genomics.
+Nucleic Acids Research, 36(SUPPL. 1).
+Droc, G. et al., 2006. Ory GenesDB: a database for rice reverse genetics. Nucleic acids
+research, 34(Database issue), pp.D736–D740.
+Hamelin, C. et al., 2013. Trop GeneDB, the mu lti-tropical crop informat ion system
+updated and extended. Nucleic Acids Research, 41(D1).
+Larmande, P. et al., 2008. Ory za Tag Line, a phenotypic mutant database for the
+Génoplante rice insertion line library. Nucleic Acids Research, 36(SUPPL. 1).
+Monaco, M.K. et al., 2014. Gramene 2013: Co mparative plant genomics resources.
+Nucleic Acids Research, 42(D1).
+
+

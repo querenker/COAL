@@ -1,0 +1,150 @@
+Demonstrating a Linked Data Platform for Finite
+Element Biosimulations of Cochlear Mechanics
+Muntazir Mehdi1 , Yasar Khan1 , Andre Freitas2 , Joao Jares1 ,
+Panagiotis Hasapis3 , and Ratnesh Sahay1
+1
+
+2
+
+Insight Centre for Data Analytics, NUI Galway, Ireland
+Computer Science Department, University of Passau, Germany
+3
+INTRASOFT International, Luxembourg
+
+Abstract. Biosimulations employ Finite Element Method (FEM) to simulate
+complex biological systems in order to understand different aspects of human
+organs. The applications of FEM biosimulations range from human ear cochlear
+mechanics, cardiovascular, to neurovascular research. Performing these large Finite Element (FE) simulations, comparison and analysis of multiple simulation
+experiment results, and visualization of large FEM numerical data is a time consuming hectic job for domain experts - mainly because simulations are performed
+in an isolated environment. In this paper, we demonstrate a linked data platform to
+dispatch simulations on biosimulation models for the inner-ear (cochlear) mechanics in an integrated non-isolated environment.
+
+1
+
+Introduction & Motivation
+
+The creation of computational biosimulation models plays a fundamental role in the
+scientific practice with regard to the understanding of biological systems [2]. Finite Element Method (FEM) provides a mathematical and computational framework to simulate
+dynamic biological systems, with applications ranging from human ear, cardiovascular, to neurovascular research. A FE biosimulation depends on the creation of models
+which span across multiple, complex and semantically incompatible domains, such as
+biological models, geometrical structures and mathematical-physical models.
+The cochlea (human inner-ear) represents a complex bio-mechanical device and
+a complete understanding of its behaviour is difficult. The creation of cochlea model,
+to perform biosimulation experiments depend on integration of heterogeneous models
+at different scales (e.g. basilar membrane, organ of corti and outer hair cells) and
+theoretical domains (e.g. mechanical, geometrical, and electrical) [3]. In our observation,
+performing simulations on a cochlea model is a time-consuming process, mainly because
+of different and often heterogeneous mathematical parameters. The growing complexity
+and sophistication of biosimulation models, the effort associated with the creation and
+analysis of a FE model can grow unmanageable. Due to lack of a well-integrated data
+infrastructure, the steps involved in the execution and comparative evaluation of a largescale finite element simulation such as preparing input numerical parameters, solver
+usages, visualisation and result/output interpretation are time consuming and often
+performed in isolated environments.
+In this paper we present a Linked Data platform aiming to improve the automation
+in integration, interpretation and visualisation of biosimulations models for inner-ear
+
+(cochlea) mechanics. The aim of the proposed platform is to facilitate the reproducibility,
+reuse, interoperability and automation of FE models with the support of Semantic
+Web standards and tools. Specifically, to support a domain-expert in performing all
+isolated tasks of a simulation experiment using a simplified, integrated platform. As
+most of FE data is numerical, this work explores mechanisms to bridge (link) data
+on the numerical to the conceptual (ontology) level, facilitating and automating the
+interpretation of the simulation results. To the best of our knowledge, the proposed linked
+data platform is a first unified infrastructure that bring together numerical parameters,
+models, terminologies, storage, querying, visualisation and analysis to conduct a finite
+element biosimulaion.
+Our work is motivated by the need of clinical organisations and labs conducting
+biosimulation experiments to understand the exact pathophysiological consequences and
+risk factors of hearing impairment in humans. Our work is conducted in context of the
+SIFEM EU project1 , which aims at developing an open-source linked data platform for
+Finite Element multi-scale modelling and biosimulation of the sensorineural hearing
+loss.
+
+Fig. 1: SIFEM Architecture
+SIFEM Infrastructure: In order to achieve the aim and objectives of the proposed
+Linked Data Platform, we define a SIFEM Architecture as depicted in Figure 1. The
+proposed linked data platform addresses following challenges in integrating, interpreting
+and visualising numerical parameters along with simulation results: (i) resolve different
+data formats (e.g, .dat, unv, .pak, etc.) by transforming them into standard RDF format;
+(ii) resolve heterogeneous terminologies originating from multiple disjoint domains
+by building a conceptual model using multiple reference ontologies from biological,
+geometrical, mathematical, and physical domains; (iii) providing links across input
+parameters/values and simulations results in-order to reuse relevant data analysis in
+future experiments; and (iv) visualisation and data analysis over FE simulation results.
+Further information about SIFEM conceptual model can be found in [1].
+1
+
+http://www.sifem-project.eu/
+
+2
+
+SIFEM Platform
+
+The SIFEM platform is built as a Web application 2 , following the SIFEM architecture.
+The main screenshot of the platform is depicted in Figure 2, where multiple sub-windows,
+corresponding to different tasks of a bio-simulation experiment can be seen. Each individual sub-window is invoked using a SIFEM Action Console, given in Figure 3. The
+SIFEM platform can be accessed on http://213.249.38.66:7071/Sifem/ 3 .
+The user provides various inputs related to the simulation experiments 4 through the
+action console, such as boundary conditions and parameters (damping factor, fluid viscosity etc.) and mesh properties (box model, cochlear model etc.). The user then invokes
+various services, such as FEM solver, RDFization etc. which process the input data and
+generates simulation results. The inputs and outputs are RDFized to achieve interoperability among different solvers. The services available through the action console are
+briefly discussed below (From left-to-right, as shown in Figure 3, e.g. Material Properties
+is the left most action button, while User Profile is the right most action button):
+
+Fig. 2: Screenshot of the SIFEM Platform.
+
+Fig. 3: SIFEM Action Console
+Material Properties: The material property menu opens a dialog that allows the user
+to specify the boundary condition types, and allows the user to select and input data
+for several parameters (such as frequency). This input data is then used by the FEM
+solver.
+2
+
+3
+4
+
+The initial version of the platform is released as an open source version, the source code of
+beta-version 1 is available at: https://goo.gl/sxePc8
+SIFEM Platform User-Manual on https://goo.gl/hbTYZt
+A video, depicting a sample simulation experiment of the running SIFEM platform can be
+found on https://goo.gl/wDC0am
+
+Mesh Setup: The mesh setup menu allows the user to specify the mesh file as input for
+the FEM solver.
+Visualization: The Visualisation menu visualises the graphs plotted using the simulation experiment data. Both 2D and 3D graphs are generated using the simulation
+data.
+Knowledge Base Editor: The knowledge base editor menu opens a new dialog that
+allows the user to manually enter data in the form of RDF triples into the knowledge
+base.
+Rules Editor and Validator: The Rule Editor and Validator menu is used by the experimenter to define and validate rules before running a simulation to validate the results
+of the simulation automatically. For example, the experimenter can specify a rule,
+saying the value of frequency should not be greater than 20 kHz as it is maximum
+frequency limit a human ear can hear. While running the simulation, results will be
+validated by the rule validator based on the rules specified by the experimenter.
+SPARQL Editor: The SPARQL editor menu opens a new dialog that allows the user to
+create SPARQL query and run the query to receive results from the knowledge base.
+Transformations: The transformation menu lets the user to select the type of transformation for the selected solver, such as displacement, greenwood etc.
+User Profile: The user profile menu shows the profile of the currently logged in user.
+Summary: In this paper, we demonstrate a linked data platform that improves integration, reproducibility and automation of Finite Element (FE) biosimulations. The proposed
+platform is developed using SIFEM architecture that combines together numerical parameters, models, terminologies, storage, querying, visualisation and analysis to conduct
+a FE biosimulation experiment. The platform is developed on a use-case to understand
+the exact pathophysiological consequences and risk factors of hearing impairment in
+humans. The experimental biosimulation data and models are from scientific and clinical
+studies about the structure-function relationship in normal and pathological cochlear. A
+survey evaluating the qualitative attributes of SIFEM platform has been conducted, the
+complete results of the survey can be seen on https://goo.gl/PSvvLY.
+ACKNOWLEDGEMENTS: This publication has emanated from research supported in part by
+the research grant from Science Foundation Ireland (SFI) under Grant Number SFI/12/RC/2289
+and EU project SIFEM (contract Number 600933).
+
+References
+1. A. Freitas, M. Jones, K. Asooja, C. Bellos, S. Elliott, S. Stenfelt, P. Hasapis, C. Georgousopoulos, T. Marquardt, N. Filipovic, et al. Towards a semantic representation for multi-scale finite
+element biosimulation experiments. In Bioinformatics and Bioengineering (BIBE), 2013 IEEE
+13th International Conference on, pages 1–5. IEEE, 2013.
+2. J. H. Gennari, M. L. Neal, B. E. Carlson, and D. L. Cook. Integration of multi-scale biosimulation models via light-weight semantics. In Pacific Symposium on Biocomputing. Pacific
+Symposium on Biocomputing, page 414. NIH Public Access, 2008.
+3. V. Isailovic, M. Obradovic, D. Nikolic, I. Saveljic, and N. D. Filipovic. SIFEM project: Finite
+element modeling of the cochlea. In 13th IEEE International Conference on BioInformatics
+and BioEngineering, BIBE 2013, Chania, Greece, November 10-13, 2013, pages 1–4, 2013.
+
+

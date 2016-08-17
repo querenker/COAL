@@ -1,0 +1,17 @@
+Managing Change in Graph-structured Data
+Using Description Logics
+Diego Calvanese
+KRDB Research Centre, Free University of Bozen-Bolzano, Italy
+calvanese@inf.unibz.it
+
+Abstract. Graph-structured data, which are receiving increased attention in the database community, are tightly connected to Description
+Logics (DLs), given that these two formalims share the underlying interpretation structures. In this talk, we consider the challenging setting
+of graph-structured data that evolve as a result of update operations
+adding and deleting facts in the style of action languages, under constraints capturing domain knowledge. We argue that expressive variants
+of DLs provide indeed quite powerful mechanisms for expressing forms of
+constraints over graph-structured data, and we draw interesting connections to path-constraints studied in databases. In this setting we discuss
+two fundamental reasoning tasks, considering both lightweight and expressive variants of DLs: verification, i.e., checking the consistency of a
+sequence of operations with respect to constraints; and plan existence,
+i.e., existence of a sequence of operations leading to a goal state.
+
+

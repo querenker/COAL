@@ -1,0 +1,38 @@
+Invited Speaker, November 20: Dr. James Momoh
+
+Resilient Power Grids
+Smart grid system deployment has been a major point of concern and interest in the development of the future electric grid both here in the US and abroad. Variety of definitions, semantics, interpretations of its functionality have
+been given by designers, implementers, end users, standard and security organizations and university communities.
+Several functions and applications have been proposed in the electric power industry and other related fields have
+yet to be properly measured by the designers.
+To ensure that the capability of smart grid and its functionality are understood generally stakeholders need performance metric such as resilience, sustainability and reliability and efficiency to measure its deployment.
+In this presentation we plan to provide a working definition, architecture and test beds in common use as well as
+define some of the functionality of smart grid for its deployment in the 21st century for the development of future
+electric grid.
+Further, we will address the grand challenge problems and options for assessing the overall performance of the
+future grid, which will include identification of unified knowledge from different disciplines to address some of the
+challenge problems, will be highlighted in the presentation.
+On going research activities and open research questions to further improve the high performance smart grid, which
+will be of value to university researchers, developers and policy makers will be discussed.
+
+Biography: Dr. James Momoh
+Dr. James Momoh, Professor and Director, Center for Energy Systems and Control (CESaC) Howard University,
+received a BS in Electrical Engineering from Howard University in 1975, a MS in Electrical Engineering from
+Carnegie Mellon University in 1976, a MS in Systems Engineering from the University of Pennsylvania in 1980
+and a PhD in Electrical Engineering from Howard University in 1983. He was Chair of the Electrical Engineering
+Department at Howard University and Director of the Center for Energy Systems and Control. In 1987, Momoh
+received a National Science Foundation (NSF) Presidential Young Investigator Award. He was Program Director
+of the Power program in the Electrical and Communications Systems (ECS) Division at NSF from 2001-2004.
+Momoh is a Fellow at the Institute of Electronics and Electrical Engineering (IEEE) and a Distinguished Fellow at
+the Nigerian Society of Engineers (NSE). He was inducted as a Fellow Member of Nigerian Academy of Engineering (NAE) in 2004.
+Momoh’s current research activities for utility firms and government agencies span several areas in systems engineering, optimization and energy systems control of terrestrial, space and naval complex and dynamic networks.
+These include but are not limited to the development of multi-agent, intelligent optimization technologies; nextgeneration optimization for the design of future intelligent power grids; computational tools and algorithms for
+deregulated/restructured power economies; and advanced power management strategies for stressed power systems
+with uncertainty, dynamics and stochasticity of parameters. He has also led research and education outreach and
+collaborations in information technology, environment, energy and human capacity building to involve the United
+States and other countries worldwide. This has led to a number of international conferences, workshops and seminar series, and research and education in engineering programs that are sponsored by NSF, Howard University and
+several universities and public-private agencies.
+
+STIDS 2015 Proceedings Page x
+
+

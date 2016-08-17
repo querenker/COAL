@@ -1,0 +1,5 @@
+Alexandre de Brébisson
+Étienne Simon
+Alex Auvolat
+Pascal Vincent
+Yoshua Bengio

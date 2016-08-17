@@ -1,0 +1,208 @@
+Ontology-supported Exploratory Search for
+Physical Training Exercises
+Michael Kotzyba1 , Denis Ponomaryov2 , Thomas Low1 , Marcus Thiel1 ,
+Birte Glimm2 , and Andreas Nürnberger1
+1
+
+Data and Knowledge Engineering Group, Otto von Guericke University Magdeburg,
+Germany <firstname>.<lastname>@ovgu.de
+2
+Institute of Artificial Intelligence, University of Ulm, Germany
+<firstname>.<lastname>@uni-ulm.de
+
+Abstract. In order to provide a qualitative support to the users during
+a web search, it is important to have access to a multitude of information
+sources simultaneously. Depending on the available domain expertise, the
+user can get an overview and insight to different information perspectives and compare the quality of resources. In this work, we present an
+exploratory search engine that simultaneously accesses internet resources
+and a local knowledge base given in the form of ontologies. The ontologies
+are used to define the search context and can be extended during exploration with new information, thus making the search process adaptive
+and iterative. We demonstrate our system on an example from the fitness
+domain, where the user searches for physical training exercises on the
+Web to complete a personal training plan.
+
+1
+
+Introduction
+
+To address the increasing variety of information published on the Web, different
+techniques have been developed to support users in information retrieval (IR).
+Index structures allow for searching for arbitrary keywords, query suggestions
+help the user in formulating the information need, summarizing surrogates and
+thumbnails facilitate preselection, while personalization helps to increase search
+performance. With the development of the Semantic Web and the increasing
+amount of domain-specific ontologies, more advanced techniques for IR have
+appeared that make use of semantics to support the user during search.
+We present an implementation of a search engine, that accesses internet resources and local ontologies simultaneously to support the user during exploratory
+search, and allows for extending a personal ontology on demand. We illustrate how
+the system works with a use case from the fitness domain, where a user is creating
+a training plan using a fitness planner. A user searches for a specific fitness training exercise, because the exercise is not yet listed in the knowledge base of the
+fitness planner. The general approach, namely to search for missing information
+to complete a knowledge base and simultaneously use the same knowledge base to
+support the user, is of course not limited to this scenario. A demonstration video
+of the application is available at http://www.dke.ovgu.de/ISWC2015.html.
+
+2
+
+Related Work
+
+Ontologies are traditionally used to support information retrieval tasks. Crampes
+and Ranwez [1] discuss strategies and formulate principles of conceptional navigation based on ontologies with the goal of improving navigation in the Web. Yang
+et al. [2] propose an ontology-based FAQ system, which processes user queries
+to enhance ranking techniques. Yang and Ho [3] show that user models can be
+improved by using domain-specific ontologies. The system by Fensel at al. [4]
+operates with Web resources and employs background ontologies to provide a
+homogeneous access to information. Keeping in mind the complexity and variety
+of Web resources, it still cannot be guaranteed that no important information is
+omitted when using the homogeneous access. In contrast, our approach allows for
+exploring not only Web resources, but also the content of background ontologies
+contained in the system, which can be dynamically extended with user-specific
+knowledge. Thus, we argue that instead of an accumulated, homogenous view,
+a separated view for the ontological knowledge is required in order to improve
+search effectiveness and user experience.
+
+3
+
+Ontology-supported Exercise Search
+
+We consider a scenario in which a user interacts with a system designed to provide
+personal training assistance. The system contains knowledge about the fitness
+domain which forms the basis for suggestions of training programs to the user.
+The system stores a list of fitness exercises that can be combined into training
+programs and is open for updates from external information sources available
+on the Web. In the demo, we address the situation when a user wants to add a
+new exercise to the system’s knowledge base in order to use it in an individual
+training program. The user initiates an online search for spine therapy exercises,
+which is guided by the system knowledge base given as a collection of ontologies.
+This search can be categorized as exploratory search [5,6], since the user is not
+sure about a specific exercise to search for, and thus needs support in exploring
+possible alternatives.
+3.1
+
+Ontologies
+
+The core component of the system’s knowledge base is the domain ontology. It
+contains categorized exercises, each of which is provided with textual descriptions
+such as preparation, execution, and comment. For every exercise, the required
+fitness equipment, as well as corresponding target and synergist muscle groups
+are specified, and a link to an animation is provided, which depicts how the
+exercise is performed. The list exercises in the domain ontology is a subset of
+exercises published at ExRx.net1 .
+1
+
+ExRx (Exercise Prescription) on the Internet
+
+http://www.exrx.net
+
+The second component is the user specific ontology, which mimics the domain
+ontology, but contains only those exercises that have been added to the system
+during the search process. Initially, the list of exercises in this ontology is empty.
+Finally, the third component of the system’s knowledge base is the DBpedia
+ontology [7]. For performance reasons, in our demo this ontology contains a subset of DBpedia derived from the seed concepts “physical exercise” and “physical
+therapy” and all related entities to the 2nd degree. The subset of the DBpedia
+ontology consists of 4375 entities.
+3.2
+
+Demo Application
+
+To demonstrate the approach of the ontology-supported exploratory search,
+we have implemented an application for the use case described above. The
+whole interface is implemented as a Web application. At first, the user can
+choose available information sources such as Web search APIs, local sources, and
+ontologies. Furthermore, a color legend specifies possible annotations and their
+corresponding ontologies.
+A schematic illustration of the main search interface is given in Figure 1. The
+search field is placed at the top. While typing the search query, the system provides
+suggestions based on the available ontologies. When the query is submitted, the
+system triggers search in all chosen information sources. Search results retrieved
+from the ontologies are shown directly below the search input. Here the title and
+the corresponding super concept of an entity, e.g. for a physical exercise or a
+DBpedia entity, is shown. On mouse over, a tool-tip with further information
+such as preparation and execution of the exercise or a general description of the
+DBpedia entity is faded in.
+Web search results are presented in the center of the interface. Each result is
+accompanied with a title, summarizing text, URL, Web page thumbnail, and a
+list of annotations. Annotations indicate terms that appear in the content of the
+Web page and as a concept in one of the ontologies. The annotations are colored
+in accordance with ontologies, where the concept appears. By hovering over an
+annotation, the word and its surrounding context on the Web page is shown.
+
+search input
+research
+context
+search
+results
+and related
+concepts from
+all ontologies
+
+keyword
+Personal Ontology
+
+Exercise Ontology
+
+Result Title
+
+Relevant Concepts
+
+Relevant text snippets
+from each website
+according to keywords
+
+DBpedia
+
+Related Exercise
+DBPedia Article
+
+Fig. 1. Main search interface as schematic illustration.
+
+Preview
+Image
+
+When a Web page is opened, the user can select and transfer information
+about a relevant physical exercise from the page’s content to the system in order
+to check whether the exercise is already present in one of the ontologies. If the
+retrieved exercise is new, the user can add it to the personal ontology, e.g. to
+complete the personal training plan.
+
+4
+
+Conclusions and Future Work
+
+Domain ontologies are a helpful means to support users during a Web search
+in a specific context. In this work, we presented an approach to search in several information sources, such as ontologies and the Web, simultaneously. For
+demonstration we have chosen a use case where a user searches for physical
+training exercises to complete a personal training plan. For future work, a user
+study to analyze the usage of the different information sources and the process of
+information extraction can reveal new insights. Furthermore, it is interesting to
+investigate different methods of extension of the initial domain-specific ontology
+with information from the search results.
+
+Acknowledgments
+This work was done within the Transregional Collaborative Research Centre
+SFB/TRR 62 “A Companion-Technology for Cognitive Technical Systems” funded by the German Research Foundation. We would like to thank the contributors
+of ExRx.net for the permission to use a subset of the published exercise library.
+
+References
+1. M. Crampes and S. Ranwez. Ontology-supported and Ontology-driven Conceptual
+Navigation on the World Wide Web, Proc. of the Eleventh ACM on Hypertext and
+Hypermedia, HYPERTEXT ’00, ACM, P. 191–199, 2000.
+2. S. Yang, F. Chuang and C. Ho. Ontology-supported FAQ processing and ranking
+techniques, Journal of Intelligent Information Systems, Vol. 28, Nr. 3, Kluwer
+Academic Publishers-Plenum Publishers, P. 233–251, 2007.
+3. S. Yang and C. Ho. Ontology-supported user models for interface agents, IEEE
+expert, 1996.
+4. D. Fensel, J. Angele, S. Decker, M. Erdmann, H. Schnurr, S. Staab, R. Studer and
+A. Witt. On2broker: Semantic-Based Access to Information Sources at the WWW,
+Educational Resources Information Center (ERIC), 1999.
+5. G. Marchionini. Exploratory search: from finding to understanding, Communications
+of the ACM, Vol. 49, ACM, P. 41–46, 2006.
+6. T. Gossen, M. Nitsche, S. Haun and A. Nürnberger. Data Exploration for Bisociative
+Knowledge Discovery: A Brief Overview of Tools and Evaluation Methods, Bisociative
+Knowledge Discovery, Springer LNCS, P. 287–300, 2012.
+7. J. Lehmann, R. Isele, M. Jakob, A. Jentzsch, D. Kontokostas, P. N. Mendes, S.
+Hellmann, M. Morsey, P. v. Kleef, S. Auer and C. Bizer. DBpedia – A Large-scale,
+Multilingual Knowledge Base Extracted from Wikipedia, Semantic Web Journal,
+IOS Press, 2014.
+
+

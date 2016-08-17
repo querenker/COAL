@@ -1,0 +1,33 @@
+Invited Speaker, November 20: Dr. Alexander Kott
+
+The Unbearable Lightness in the Meaning of Cyber Risk
+The term “cyber risk” aims to characterize a variety of phenomena where information assets are subject to a potential damage due to cyber attacks. Many attempts, almost unblemished by success, have been made to define cyber
+risk. In this talk we explore why the concept of cyber risk, as treated by both practitioners and researchers of cyber
+security, is largely inconsistent with definitions of cyber risk commonly offered in the literature. Unsurprisingly,
+an adequate ontology of cyber risk is lacking, and a rigorous re-conceptualization of cyber risk is needed.
+A new formal treatment of cyber risk that should include an ontology of cyber risk-related concepts, a rigorous
+mathematical model, and practical definitions, all of which must align with common sense perceptions of cyber
+risk by cyber security practitioners. Furthermore, cyber risk belongs firmly to the realm of adversarial decisionmaking and has little meaning outside of a process geared toward decisions made under extreme uncertainty, time
+pressure, and under threat of an adversarial actions pre-empting and counteracting those of the defenders. Modeling of risk must be adversarial in nature, with game-theoretic and decision-theoretic perspectives duly considered.
+And to add to the confusion, we must discuss how inseparably connected yet different are cyber risk and cyber resilience.
+
+Biography: Dr. Alexander Kott
+Dr. Alexander Kott serves as the Chief, Network Science Division, Army Research Laboratory headquartered in
+Adelphi MD. In this position, he is responsible for fundamental research and applied development in performance
+and security of both tactical mobile and strategic networks. He oversees projects in network performance and security, intrusion detection, and network emulation. Research under his direction brings together government, industry
+and academic institutions working toward a fundamental understanding of interactions, interdependencies, and
+common underlying science among social/cognitive, information, and communications networks, including science
+for cyber. Prediction and control of the composite behavior of these complex interacting networks will ultimately
+enhance their effectiveness and security.
+Between 2003 and 2008, Dr. Kott served as a Defense Advanced Research Programs Agency (DARPA) Program
+Manager responsible for a number of large-scale advanced technology research programs. His earlier positions
+included Technical Director with BBN Technologies, Cambridge, MA; Director of R&D at Logica Carnegie
+Group, Pittsburgh, PA; and IT Research Department Manager at AlliedSignal, Inc., Morristown, NJ. Dr. Kott received the Secretary of Defense Exceptional Public Service Award and accompanying Exceptional Public Service
+Medal, in October 2008.
+He earned his PhD from the University of Pittsburgh, Pittsburgh PA in 1989; published over 80 technical papers;
+and co-authored, and edited nine technical books. Dr. Kott and his family reside in Silver Spring, Maryland. He
+can be reached at alexkott@yahoo.com.
+
+STIDS 2015 Proceedings Page ix
+
+

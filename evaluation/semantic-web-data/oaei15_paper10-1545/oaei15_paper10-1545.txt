@@ -1,0 +1,219 @@
+LogMap family results for OAEI 2015
+E. Jiménez-Ruiz1 , B. Cuenca Grau1 , A. Solimando2 , and V. Cross3
+1
+
+3
+
+Department of Computer Science, University of Oxford, Oxford UK
+2
+Inria Saclay and Université Paris-Sud, France
+Computer Science and Software Engineering, Miami University, Oxford, OH, United States
+
+Abstract. We present the results obtained in the OAEI 2015 campaign by our
+ontology matching system LogMap and its variants: LogMapC, LogMapBio and
+LogMapLt. The LogMap project started in January 2011 with the objective of developing a scalable and logic-based ontology matching system. This is our sixth
+participation in the OAEI and the experience has so far been very positive. Currently, LogMap is the only system that participates in all OAEI tasks.
+
+1
+
+Presentation of the system
+
+Ontology matching systems typically rely on lexical and structural heuristics and the
+integration of the input ontologies and the mappings may lead to many undesired logical consequences. In [12] three principles were proposed to minimize the number of
+potentially unintended consequences, namely: (i) consistency principle, the mappings
+should not lead to unsatisfiable classes in the integrated ontology; (ii) locality principle,
+the mappings should link entities that have similar neighbourhoods; (iii) conservativity principle, the mappings should not introduce alterations in the classification of the
+input ontologies. Violations to these principles may hinder the usefulness of ontology
+mappings. The practical effect of these violations, however, is clearly evident when
+ontology alignments are involved in complex tasks such as query answering [19].
+LogMap [11, 13] is a highly scalable ontology matching system that implements the
+consistency and locality principles. LogMap also supports (real-time) user interaction
+during the matching process, which is essential for use cases requiring very accurate
+mappings. LogMap is one of the few ontology matching system that (i) can efficiently
+match semantically rich ontologies containing tens (and even hundreds) of thousands of
+classes, (ii) incorporates sophisticatedhttp://iswc2015.semanticweb.org/ reasoning and
+repair techniques to minimise the number of logical inconsistencies, and (iii) provides
+support for user intervention during the matching process.
+LogMap relies on the following elements, which are keys to its favourable scalability behaviour (see [11, 13] for details).
+Lexical indexation. An inverted index is used to store the lexical information contained
+in the input ontologies. This index is the key to efficiently computing an initial set of
+mappings of manageable size. Similar indexes have been successfully used in information retrieval and search engine technologies [2].
+Logic-based module extraction. The practical feasibility of unsatisfiability detection
+and repair critically depends on the size of the input ontologies. To reduce the size of
+
+the problem, we exploit ontology modularisation techniques. Ontology modules with
+well-understood semantic properties can be efficiently computed and are typically much
+smaller than the input ontology (e.g. [5]).
+Propositional Horn reasoning. The relevant modules in the input ontologies together
+with (a subset of) the candidate mappings are encoded in LogMap using a Horn propositional representation. Furthermore, LogMap implements the classic Dowling-Gallier
+algorithm for propositional Horn satisfiability [6]. Such encoding, although incomplete,
+allows LogMap to detect unsatisfiable classes soundly and efficiently.
+Axiom tracking. LogMap extends Dowling-Gallier’s algorithm to track all mappings
+that may be involved in the unsatisfiability of a class. This extension is key to implementing a highly scalable repair algorithm.
+Local repair. LogMap performs a greedy local repair; that is, it repairs unsatisfiabilities
+on-the-fly and only looks for the first available repair plan.
+Semantic indexation. The Horn propositional representation of the ontology modules
+and the mappings is efficiently indexed using an interval labelling schema [1] — an
+optimised data structure for storing directed acyclic graphs (DAGs) that significantly
+reduces the cost of answering taxonomic queries [4, 20]. In particular, this semantic
+index allows us to answer many entailment queries as an index lookup operation over
+the input ontologies and the mappings computed thus far, and hence without the need
+for reasoning. The semantic index complements the use of the propositional encoding
+to detect and repair unsatisfiable classes.
+1.1
+
+LogMap variants in the 2015 campaign
+
+As in the 2014, in the 2015 campaign we have participated with 3 variants:
+LogMapLt is a “lightweight” variant of LogMap, which essentially only applies (efficient) string matching techniques.
+LogMapC is a variant of LogMap which, in addition to the consistency and locality
+principles, also implements the conservativity principle (see details in [21, 22]).
+The repair algorithm is more aggressive than in LogMap, thus we expect highly
+precise mappings but with a significant decrease in recall.
+LogMapBio includes an extension to use BioPortal [8, 9] as a (dynamic) provider of
+mediating ontologies instead of relying on a few preselected ontologies [3].
+1.2
+
+Adaptations made for the 2015 evaluation
+
+LogMap’s algorithm described in [11, 13, 14] has been adapted with the following new
+functionalities:
+i Local repair with global information. We have extended LogMap to include global
+information in the local repairs, that is, repair plans of the same size are ordered according to their degree of conflictness (i.e. number of cases where the mappings in
+the repair are involved in an unsatisfiability). Hencee, LogMap prefers to remove
+mappings that are more likely to lead to other unsatisfiabilities.
+
+ii Extended multilingual support. We have extended our multilingual module to
+use both google translate and microsoft translator.4 Additionally, in order to split
+Chinese words, we rely on the ICTCLAS library5 developed by the Institute of
+Computing Technology of the Chinese Academy of Sciences.
+iii Extended instance matching support. We have also adapted LogMap’s instance
+matching module to cope with the new OAEI 2014 tasks.
+iv BioPortal module. In the OAEI 2015, LogMapBio uses the top-10 mediating (the
+2014 version used only the top-5) ontologies given by the algorithm presented in
+[3]. Note that, LogMapBio only participates in the biomedical tracks. In the other
+tracks the results are expected to be the same as LogMap.
+1.3
+
+Link to the system and parameters file
+
+LogMap is open-source and released under GNU Lesser General Public License 3.0.6
+LogMap components and source code are available from the LogMap’s GitHub page:
+https://github.com/ernestojimenezruiz/logmap-matcher/.
+LogMap distributions can be easily customized through a configuration file containing the matching parameters.
+LogMap, including support for interactive ontology matching, can also be used directly through an AJAX-based Web interface: http://csu6325.cs.ox.ac.uk/.
+This interface has been very well received by the community since it was deployed in
+2012. More than 2,000 requests coming from a broad range of users have been processed so far.
+1.4
+
+Modular support for mapping repair
+
+Only a very few systems participating in the OAEI competition implement repair techniques. As a result, existing matching systems (even those that typically achieve very
+high precision scores) compute mappings that lead in many cases to a large number of
+unsatisfiable classes.
+We believe that these systems could significantly improve their output if they were
+to implement repair techniques similar to those available in LogMap. Therefore, with
+the goal of providing a useful service to the community, we have made LogMap’s ontology repair module (LogMap-Repair) available as a self-contained software component
+that can be seamlessly integrated in most existing ontology matching systems [16, 7].
+
+2
+
+Results
+
+Please refer to http://oaei.ontologymatching.org/2015/results/index.
+html for the results of the LogMap family in the OAEI 2015 campaign.
+4
+
+5
+6
+
+Currently we rely on the (unofficial) APIs available at https://code.google.
+com/p/google-api-translate-java/ and https://code.google.com/p/
+microsoft-translator-java-api/
+https://code.google.com/p/ictclas4j/
+http://www.gnu.org/licenses/
+
+3
+
+General comments and conclusions
+
+3.1
+
+Comments on the results
+
+LogMap has been one of the top systems in the OAEI 2015 and the only system that
+participates in all tracks. Furthermore, it has also been one of the few systems implementing repair techniques and providing (almost) coherent mappings in all tracks.
+LogMap’s main weakness is that the computation of candidate mappings is based
+on the similarities between the vocabularies of the input ontologies; hence, in the cases
+where the ontologies are lexically disparate or do not provide enough lexical information LogMap is at a disadvantage.
+3.2
+
+Discussions on the way to improve the proposed system
+
+LogMap is now a stable and mature system that has been made available to the community and has been extensively tested. There are, however, many exciting possibilities for
+future work. For example we aim at improving the current multilingual features and the
+current use of external resources like BioPortal. Furthremore, we are applying LogMap
+in practice in the domain of oil and gas industry within the FP7 Optique7 [18, 15, 10,
+17]. This practical application presents a very challenging problem.
+
+Acknowledgements
+This work was supported by the EPSRC projects MaSI3 , Score! and DBOnto, and by
+the EU FP7 project Optique (grant agreement 318338).
+We would also like to thank Ian Horrocks, Anton Morant, Yujiao Zhou Weiguo Xia,
+Xi Chen, Yuan Gong and Shuo Zhang, who have contributed to the LogMap project in
+the past.
+
+References
+1. Agrawal, R., Borgida, A., Jagadish, H.V.: Efficient management of transitive relationships
+in large data and knowledge bases. In: ACM SIGMOD Conf. on Management of Data. pp.
+253–262 (1989)
+2. Baeza-Yates, R.A., Ribeiro-Neto, B.A.: Modern Information Retrieval. ACM Press /
+Addison-Wesley (1999)
+3. Chen, X., Xia, W., Jiménez-Ruiz, E., Cross, V.: Extending an ontology alignment system
+with bioportal: a preliminary analysis. In: Poster at Int’l Sem. Web Conf. (ISWC) (2014)
+4. Christophides, V., Plexousakis, D., Scholl, M., Tourtounis, S.: On labeling schemes for the
+Semantic Web. In: Int’l World Wide Web (WWW) Conf. pp. 544–555 (2003)
+5. Cuenca Grau, B., Horrocks, I., Kazakov, Y., Sattler, U.: Modular reuse of ontologies: Theory
+and practice. J. Artif. Intell. Res. 31, 273–318 (2008)
+6. Dowling, W.F., Gallier, J.H.: Linear-time algorithms for testing the satisfiability of propositional Horn formulae. J. Log. Prog. 1(3), 267–284 (1984)
+7
+
+http://www.optique-project.eu/
+
+7. Faria, D., Jiménez-Ruiz, E., Pesquita, C., Santos, E., Couto, F.M.: Towards annotating potential incoherences in bioportal mappings. In: 13th Int’l Sem. Web Conf. (ISWC) (2014)
+8. Fridman Noy, N., Shah, N.H., Whetzel, P.L., Dai, B., et al.: BioPortal: ontologies and integrated data resources at the click of a mouse. Nucleic Acids Research 37, 170–173 (2009)
+9. Ghazvinian, A., Noy, N.F., Jonquet, C., Shah, N.H., Musen, M.A.: What four million mappings can tell you about two hundred ontologies. In: Int’l Sem. Web Conf. (ISWC) (2009)
+10. Giese, M., Soylu, A., Vega-Gorgojo, G., Waaler, A., Haase, P., Jimenez-Ruiz, E., Lanti, D.,
+Rezk, M., Xiao, G., Ozcep, O., Rosati, R.: Optique — Zooming In on Big Data Access.
+Computer 48(3), 60–67 (2015)
+11. Jiménez-Ruiz, E., Cuenca Grau, B.: LogMap: Logic-based and Scalable Ontology Matching.
+In: Int’l Sem. Web Conf. (ISWC). pp. 273–288 (2011)
+12. Jiménez-Ruiz, E., Cuenca Grau, B., Horrocks, I., Berlanga, R.: Logic-based assessment of
+the compatibility of UMLS ontology sources. J. Biomed. Sem. 2 (2011)
+13. Jiménez-Ruiz, E., Cuenca Grau, B., Zhou, Y., Horrocks, I.: Large-scale interactive ontology
+matching: Algorithms and implementation. In: Europ. Conf. on Artif. Intell. (ECAI) (2012)
+14. Jiménez-Ruiz, E., Grau, B.C., Xia, W., Solimando, A., Chen, X., Cross, V.V., Gong, Y.,
+Zhang, S., Chennai-Thiagarajan, A.: Logmap family results for OAEI 2014. In: Proceedings
+of the 9th International Workshop on Ontology Matching collocated with the 13th International Semantic Web Conference (ISWC 2014), Riva del Garda, Trentino, Italy, October 20,
+2014. pp. 126–134 (2014)
+15. Jiménez-Ruiz, E., Kharlamov, E., Zheleznyakov, D., Horrocks, I., Pinkel, C., Skjæveland,
+M.G., Thorstensen, E., Mora, J.: BootOX: Practical Mapping of RDBs to OWL 2. In: International Semantic Web Conference (ISWC) (2015), http://www.cs.ox.ac.uk/isg/
+tools/BootOX/
+16. Jiménez-Ruiz, E., Meilicke, C., Cuenca Grau, B., Horrocks, I.: Evaluating mapping repair
+systems with large biomedical ontologies. In: 26th Description Logics Workshop (2013)
+17. Kharlamov, E., Hovland, D., Jiménez-Ruiz, E., Lanti, D., Lie, H., Pinkel, C., Rezk, M.,
+Skjæveland, M.G., Thorstensen, E., Xiao, G., Zheleznyakov, D., Horrocks, I.: Ontology
+Based Access to Exploration Data at Statoil. In: International Semantic Web Conference
+(ISWC). pp. 93–112 (2015)
+18. Kharlamov, E., Jiménez-Ruiz, E., Zheleznyakov, D., et al.: Optique: Towards OBDA Systems
+for Industry. In: Eur. Sem. Web Conf. (ESWC) Satellite Events. pp. 125–140 (2013)
+19. Meilicke, C.: Alignment Incoherence in Ontology Matching. Ph.D. thesis, University of
+Mannheim (2011)
+20. Nebot, V., Berlanga, R.: Efficient retrieval of ontology fragments using an interval labeling
+scheme. Inf. Sci. 179(24), 4151–4173 (2009)
+21. Solimando, A., Jiménez-Ruiz, E., Guerrini, G.: Detecting and correcting conservativity principle violations in ontology-to-ontology mappings. In: Int’l Sem. Web Conf. (ISWC) (2014)
+22. Solimando, A., Jiménez-Ruiz, E., Guerrini, G.: A multi-strategy approach for detecting and
+correcting conservativity principle violations in ontology alignments. In: Proc. of the 11th
+International Workshop on OWL: Experiences and Directions (OWLED). pp. 13–24 (2014)
+
+

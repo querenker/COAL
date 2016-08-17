@@ -1,0 +1,34 @@
+Linked Logainm: Publishing and Using an
+Authoritative Linked Data Dataset of Irish
+Place Names
+Christophe Debruyne
+ADAPT Centre for Digital Content Technology Research, Knowledge & Data
+Engineering Group, School of Computer Science and Statistics,
+Trinity College Dublin, Dublin 2, Ireland
+debruync@scss.tcd.ie
+
+Linked Data technologies are increasingly being implemented to enhance cataloguing workflows in memory institutions such as libraries, archives and museums. These institutions actively seek authoritative Linked Data datasets to enhance their metadata. This talk presents the results of Linked Logainm. Linked
+Logainm is a collaborative project that aimed to create a Linked Data dataset
+out of Logainm.ie, an online database holding the authoritative hierarchical list
+of Irish and English language place names in Ireland. We will describe the process
+of generating RDF from XML, elaborate on the discovery and creation of links
+with other Linked Data datasets, and report on how the dataset we created
+was used to enhance the National Library of Ireland’s metadata MARCXML
+metadata records for its Longfield maps collection. We conclude this talk with
+describing the potential benefits of Linked Logainm, the applications that can
+be built on top of this dataset, and a reflection on the work we have conducted.
+Acknowledgements The work presented in this talk has been funded in part
+by Science Foundation Ireland under Grants No. 08/CE/I1380 and 12/RC/2289,
+and is based on joint work with Nuno Lopes, Sandra Collins, Rebecca Grant,
+Catherine Ryan, Stefan Decker, Caoilfhionn Nic Pháidı́n, Una Bhreathnach,
+Brian Ó Raghallaigh, Mairéad Nic Lochlainn, Ger Wilson, Eoghan Ó Carragáin,
+Pádraig Ó Cearbhaill, Micheál Ó Conaire, and Dónall Mac Giolla Easpaig.
+Christophe Debruyne is currently supported by the Science Foundation Ireland
+ADAPT Centre for Digital Content Technology (Grant 13/RC/2106).
+
+5
+
+	  	  
+	  
+
+

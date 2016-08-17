@@ -1,0 +1,174 @@
+Reasoning in a Rational Extension of SROEL(u, ×)
+(Extended Abstract)
+Laura Giordano and Daniele Theseider Dupré
+DISIT - Università del Piemonte Orientale, Alessandria, Italy
+laura.giordano@uniupo.it, dtd@di.unipmn.it
+
+The need for extending Description Logics (DLs) with nonmonotonic features has
+led, in the last decade, to the development of many extensions of DLs, obtained by
+combining them with the most well-known formalisms for nonmonomtnic reasoning
+[24, 2, 9, 11, 13, 16, 15, 18, 6, 4, 8, 23, 19, 7, 3] to deal with defeasible reasoning and inheritance, to allow for prototypical properties of concepts and to combine DLs with
+nonmonotonic rule-based languages [11, 10, 19, 17].
+In this work we study a preferential extension of the logic SROEL(u, ×), introduced by Krötzsch [21], which is a low-complexity description logic of the EL family
+[1] that includes local reflexivity, conjunction of roles and concept products and is at the
+basis of OWL 2 EL. Our extension is based on Kraus, Lehmann and Magidor (KLM)
+preferential semantics [20], and, specifically, on ranked models [22]. We call the logic
+SROEL(u, ×)R T and define notions of rational and minimal entailment for it.
+The semantics of ranked interpretations for DLs was first studied in [6], where a rational extension of ALC is developed allowing for defeasible concept inclusions of the
+form C@D. In this work, following [14, 16], we extend the language of SROEL(u, ×)
+e
+with typicality
+concepts T(C), whose instances are intended to be the typical C elements. Defeasible inclusions T(C) v D mean that “the typical C elements are Ds”.
+Here, however, as in [5, 12], typicality concepts can freely occur in concept inclusions.
+The language is then more general than in [16], where minimal ranked models have
+been shown to provide a semantic characterization to rational closure for ALC, which
+extends the rational closure by Lehmann and Magidor [22]. Alternative constructions
+of rational closure for ALC have been proposed in [8, 7]. All such constructions regard languages only containing strict or defeasible inclusions (i.e., in the language with
+typicality concepts, T(C ) may only occur in inclusions T(C ) v D and in assertions).
+In this work we define a Datalog translation for SROEL(u, ×)R T which builds
+on the materialization calculus in [21], and, for typicality reasoning, is based on properties of ranked models, showing that instance checking under rational entailment is
+polynomial. While this result has the consequence that the Rational Closure (based on
+the definition in [16]) can be computed in polynomial time, we show that, for general SROEL(u, ×)R T KBs, deciding instance checking under minimal entailment is
+CO NP-hard (while minimal entailment coincides with Rational Closure for ALC).
+The notion of concept in SROEL(u, ×), as defined by Krötzsch [21], is extended
+with typicality concepts. We let NC be a set of concept names, NR a set of role names
+and NI a set of individual names. A concept in SROEL(u, ×) is defined as follows:
+C := A | > | ⊥ | C u C | ∃r.C | ∃S.Self | {a}
+where A ∈ NC and r ∈ NR . We introduce a notion of extended concept CE as follows:
+
+2
+
+L. Giordano, D. Theseider Dupré
+
+CE := C | T(C) | CE u CE | ∃S.CE
+where C is a SROEL(u, ×) concept; i.e., extended concepts include typicality concepts T(C), which can occur in conjunctions and existential restrictions, but T cannot
+be nested.
+A KB is a triple (TBox , RBox , ABox ). TBox contains a finite set of general concept inclusions (GCI) C v D, where C and D are extended concepts; RBox (as in [21])
+contains a finite set of role inclusions of the form S v T , R ◦ S v T , S1 u S2 v T ,
+R v C × D, where C and D are concepts, R, S, T ∈ NR . ABox contains individual assertions of the form C(a) and R(a, b), where a, b ∈ NI , R ∈ NR and C is an
+extended concept. Restrictions are imposed on the use of roles as in [21].
+Following [6, 16], a semantics for the extended language is defined, adding to interpretations in SROEL(u, ×) [21] a preference relation < on the domain, which is
+intended to compare the “typicality” of domain elements.
+Definition 1. A SROEL(u, ×)R T interpretation M is any structure h∆, <, ·I i where:
+(i) ∆ and ·I are a domain and an interpretation function as in a SROEL(u, ×) interpretations; (ii) < is an irreflexive, transitive, well-founded and modular relation
+over ∆; (iii) the interpretation of concept T(C) is defined as follows: (T(C))I =
+M in< (C I ), where M in< (S) = {u : u ∈ S and @z ∈ S s.t. z < u}. An irreflexive and transitive relation < is well-founded if, for all S ⊆ ∆, for all x ∈ S, either
+x ∈ M in< (S) or ∃y ∈ M in< (S) such that y < x. It is modular if, for all x, y, z ∈ ∆,
+x < y implies x < z or z < y.
+As in [22], modularity in preferential models can be equivalently defined by postulating the existence of a ranking function kM : ∆ 7−→ Ω, where Ω is a totally ordered
+set and x < y if and only if kM (x) < kM (y). Hence, modular preferential models
+are called ranked models. In the following we assume that such a ranking function is
+associated with a model. Satisfiability and models of a KB is defined as usual for DLs.
+Definition 2 (Rational entailment). Let a query F be either a concept inclusion C v
+D, where C and D are extended concepts, or an individual assertion. F is entailed by
+K, written K |=sroelrt F , if for all models M =h∆, <, ·I i of K, M satisfies F .
+Example 1. TBox :
+(a) T(Italian) v ∃hasHair .{Black }
+(b) T(Student) v MathHater
+(c) ∃hasHair .{Black } u ∃hasHair .{Blond } v ⊥ (d) T(Student) v Young
+(e) ∃friendOf .{mary} v T(Student)
+(f ) MathLover u MathHater v ⊥
+ABox : {Student(mary), friendOf (mario, mary), (Student u Italian)(mario),
+T(Student u Italian)(luigi), T(Student u Young)(paul)}
+Standard DL inferences hold for T(C) concepts and T(C) v D inclusions. For
+instance, we can conclude that Mario is a typical student (by (e)) and young (by (d)).
+However, by the properties of defeasible inclusions, Luigi, who is a typical Italian student, and Paul, who is a typical young student, both inherit the property of typical
+students of being math haters. In this logic we cannot conclude that all typical young
+Italians have black hair (and that Luigi has black hair), according to Rational Monotonicity in [22], as we do not know whether there is some typical Italian who is young.
+
+Reasoning in a Rational Extension of SROEL(u, ×) (Extended Abstract)
+
+3
+
+To supports such a stronger nonmonotonic inference, a minimal model semantics (and
+minimal entailment) is needed to select the interpretations where individuals are as typical as possible (see below).
+A normal form can be defined for SROEL(u, ×)R T knowledge bases. A KB is in
+normal form if it admits axioms of a SROEL(u, ×) KB in normal form, and axioms
+of the form: A v T(B) and T(B) v C with A, B, C ∈ NC . Extending the results in
+[1, 21], it is easy to see that, given a SROEL(u, ×)R T KB, a semantically equivalent
+KB in normal form (over an extended signature) can be computed in linear time.
+For normalized KBs, the Datalog materialization calculus for SROEL(u, ×) proposed by Krötzsch [21] can be extended to define a polynomial Datalog encoding for
+instance checking under rational entailment.
+Theorem 1. Instance checking under rational entailment in SROEL(u, ×)R T can be
+decided in polynomial time for normalized KBs.
+Exploiting the approach presented in [21], a version of the Datalog specification
+where predicates have an additional parameter can also be used to check subsumption for SROEL(u, ×)R T in polynomial time. This also provides a polynomial upper
+bound for a rational closure construction analogous to the one in [16].
+We now consider the notion of minimal canonical model in [16]. Given a KB K
+and a query F , let S be the set of all the concepts (and subconcepts) occurring in K or
+F together with their complements (S is finite).
+Definition 3 (Canonical models). A model M = h∆, <, Ii of K is canonical if, for
+each set of SROEL(u, ×)R T concepts {C1 , C2 , . . . , Cn } ⊆ S consistent with K (i.e.,
+s.t. K 6|=sroelrt C1 u C2 u . . . u Cn v ⊥), there exists a domain element x ∈ ∆ such
+that x ∈ (C1 u C2 u . . . u Cn )I .
+Among canonical models, we select the minimal ones according to the following preference relation ≺ over the set of ranked interpretations. An interpretation M =h∆, <, Ii
+0
+is preferred to M0 = h∆0 , <0 , I 0 i (M ≺ M0 ) if: ∆ = ∆0 ; C I = C I for all concepts C;
+for all x ∈ ∆, kM (x) ≤ kM0 (x), and there exists y ∈ ∆ such that kM (y) < kM0 (y).
+Definition 4 (Minimal entailment). M is a minimal canonical model of K if it is a
+canonical model of K and it is minimal among all the canonical models of K wrt.
+the preference relation ≺. Given a query F , F is minimally entailed by K, written
+K |=min F if, for all minimal canonical models M of K, M satisfies F .
+Under minimal entailment, in Example 1 we can conclude ∃hasHair .{Black }(luigi )
+and T(Young u Italian) v ∃hasHair .{Black }.
+Theorem 2. Instance checking in SROEL(u, ×)R T under minimal entailment is CO NPhard.
+The proof is based on a reduction from tautology checking of propositional 3DNF formulae to instance checking in SROEL(u, ×)R T.
+For KBs which only allow typicality concepts to occur on the left hand side of
+typicality inclusions, and are in the language of ALC, the result in [16] guarantees that
+all minimal canonical models of the KB assign the same ranks to concepts, namely,
+the ranks determined by the rational closure construction. This is not true, however, for
+general KBs in SROEL(u, ×).
+
+4
+
+L. Giordano, D. Theseider Dupré
+
+References
+1. Baader, F., Brandt, S., Lutz, C.: Pushing the EL envelope. In: Proc IJCAI 2005. pp. 364–369
+(2005)
+2. Baader, F., Hollunder, B.: Priorities on defaults with prerequisites, and their application in
+treating specificity in terminological default logic. J. of Automated Reasoning 15(1), 41–68
+(1995)
+3. Bonatti, P.A., Faella, M., Petrova, I., Sauro, L.: A new semantics for overriding in description
+logics. Artif. Intell. 222, 1–48 (2015)
+4. Bonatti, P.A., Lutz, C., Wolter, F.: The Complexity of Circumscription in DLs. J. of Artificial
+Intelligence Research 35, 717–773 (2009)
+5. Booth, R., Casini, G., Meyer, T., Varzinczak, I.J.: On the entailment problem for a logic of
+typicality. In: Proc. IJCAI 2015. pp. 2805–2811 (2015)
+6. Britz, K., Heidema, J., Meyer, T.: Semantic preferential subsumption. In: Brewka, G., Lang,
+J. (eds.) Proc. KR 2008. pp. 476–484 (2008)
+7. Casini, G., Meyer, T., Varzinczak, I.J., , Moodley, K.: Nonmonotonic Reasoning in Description Logics: Rational Closure for the ABox. In: Proc. DL 2013. pp. 600–615 (2013)
+8. Casini, G., Straccia, U.: Rational Closure for Defeasible Description Logics. In: Proc. JELIA
+2010. pp. 77–90. LNAI 6341, Springer (2010)
+9. Donini, F.M., Nardi, D., Rosati, R.: Description logics of minimal knowledge and negation
+as failure. ACM Transactions on Computational Logic (ToCL) 3(2), 177–225 (2002)
+10. Eiter, T., Ianni, G., Lukasiewicz, T., Schindlauer, R.: Well-founded semantics for description
+logic programs in the semantic web. ACM Trans. Comput. Log. 12(2), 11 (2011)
+11. Eiter, T., Ianni, G., Lukasiewicz, T., Schindlauer, R., Tompits, H.: Combining answer set
+programming with description logics for the semantic web. Artif. Intell. 172(12-13), 1495–
+1539 (2008)
+12. Giordano, L., Gliozzi, V.: Encoding a preferential extension of the description logic SROIQ
+into SROIQ. In: Proc. ISMIS 2015. LNCS, vol. 9384, pp. 248–258. Springer (2015)
+13. Giordano, L., Gliozzi, V., Olivetti, N., Pozzato, G.L.: Preferential Description Logics. In:
+Proceedings of LPAR 2007. LNAI, vol. 4790, pp. 257–272. Springer-Verlag (2007)
+14. Giordano, L., Gliozzi, V., Olivetti, N., Pozzato, G.L.: ALC+T: a preferential extension of
+Description Logics. Fundamenta Informaticae 96, 1–32 (2009)
+15. Giordano, L., Gliozzi, V., Olivetti, N., Pozzato, G.L.: A NonMonotonic Description Logic
+for Reasoning About Typicality. Artificial Intelligence 195, 165–202 (2013)
+16. Giordano, L., Gliozzi, V., Olivetti, N., Pozzato, G.L.: Semantic characterization of rational
+closure: From propositional logic to description logics. Artif. Intell. 226, 1–33 (2015)
+17. Gottlob, G., Hernich, A., Kupke, C., Lukasiewicz, T.: Stable model semantics for guarded
+existential rules and description logics. In: Proc. KR 2014 (2014)
+18. Ke, P., Sattler, U.: Next Steps for Description Logics of Minimal Knowledge and Negation
+as Failure. In: Proc. DL 2008. CEUR Workshop Proceedings, vol. 353 (2008)
+19. Knorr, M., Hitzler, P., Maier, F.: Reconciling OWL and non-monotonic rules for the semantic
+web. In: ECAI 2012. p. 474479 (2012)
+20. Kraus, S., Lehmann, D., Magidor, M.: Nonmonotonic reasoning, preferential models and
+cumulative logics. Artif. Intell. 44(1-2), 167–207 (1990)
+21. Krötzsch, M.: Efficient inferencing for OWL EL. In: Proc. JELIA 2010. pp. 234–246 (2010)
+22. Lehmann, D., Magidor, M.: What does a conditional knowledge base entail? Artificial Intelligence 55(1), 1–60 (1992)
+23. Motik, B., Rosati, R.: Reconciling Description Logics and rules. J. ACM 57(5) (2010)
+24. Straccia, U.: Default inheritance reasoning in hybrid KL-ONE-style logics. In: Proc. IJCAI
+1993. pp. 676–681 (1993)
+
+

@@ -1,0 +1,630 @@
+Synthesizing and Executing Plans
+in Knowledge and Action Bases? ??
+Diego Calvanese1 , Marco Montali1 , Fabio Patrizi1 , and Michele Stawowy2
+1
+
+Free University of Bozen-Bolzano, Italy,
+lastname@inf.unibz.it
+2
+IMT Lucca, Italy,
+michele.stawowy@imtlucca.it
+
+Abstract. We study plan synthesis for a variant of Knowledge and Action Bases
+(KABs). KABs have been recently introduced as a rich, dynamic framework
+where states are full-fledged description logic (DL) knowledge bases (KBs)
+whose extensional part is manipulated by actions that can introduce new objects
+from an infinite domain. We show that, in general, plan existence over KABs is
+undecidable even under severe restrictions. We then focus on the class of statebounded KABs, for which plan existence is decidable, and we provide sound and
+complete plan synthesis algorithms, through a novel combination of techniques
+based on standard planning, DL query answering, and finite-state abstractions.
+All results hold for any DL with decidable query answering. We finally show that
+for lightweight DLs, plan synthesis can be compiled into standard ADL planning.
+
+1
+
+Introduction
+
+Recently, there has been an increasing interest in the study of formalisms that integrate
+static structural knowledge, as expressed, e.g., in description logics (DLs) [2], with
+action-based mechanisms, to capture a domain’s evolution over time. Combining these
+two aspects into a single logical system is well-known to be difficult and easily leading
+to undecidability, even for simple forms of inference about system dynamics, when the
+logics used to describe the structural properties are rather limited [25, 17]. To overcome
+these restrictions, a recent line of work by [5] has introduced Knowledge and Action
+Bases (KABs). Such systems rely on Levesque’s functional approach [21] to operate
+over a full-fledged DL knowledge base (KB), by means of actions: actions evolve the
+system by querying the current state using logical inference (ASK operation), and then
+using the derived facts to assert new knowledge in the resulting state (TELL operation).
+A prominent feature of KABs is that actions allow one to incorporate into the KB
+external input provided by fresh objects taken from an infinite domain. This gives rise,
+in general, to an infinite-state system, in which reasoning is undecidable. Nevertheless, decidability of verification of first-order temporal properties has been obtained for
+?
+??
+
+A revised version of this work has been published in the Proceedings of IJCAI 2016.
+The authors acknowledge the support of: Rip. Diritto allo Studio, Università e Ricerca Scientifica of Provincia Autonoma di Bolzano–Alto Adige, under project V ERI S YN C O PATE D; the
+EU project Optique (FP7-IP-318338); and the UNIBZ internal projects KENDO and OnProm.
+
+1
+
+KABs that are state-bounded [3, 4], i.e., in which the number of objects in each single
+state is bounded a-priori, but is unbounded along single runs, and in the whole system.
+Here, we study the problem of planning, specifically plan existence and synthesis
+[18, 14], for knowledge-intensive dynamic systems over infinite domains. For doing so
+we consider a variation of KABs, termed Explicit-Input KABs (eKABs), more suited for
+our purposes, in which the input-related information for an action is made explicit in its
+signature, and not hidden in its conditional effects. In fact, eKABs can be considered as
+a concrete instantiation of the more abstract framework of Description Logic-based Dynamic Systems (DLDS) [13], and inherit its possibility of abstracting away the specific
+DL formalism used to capture the underlying KB.
+We show that, in general, plan existence is undecidable even for severely restricted
+eKABs, in line with previous work on planning in rich settings [16]. We then prove
+decidability in PS PACE data complexity of such problem, for state-bounded eKABs,
+by combining techniques based on standard planning, DL query answering, and finitestate abstractions for DLDSs. In spirit, our work is similar to the one by [20], since it
+combines a rich knowledge-based setting with the possibility of incorporating external
+input during the system evolution. However, we provide the first setting we are aware
+of where planning stays decidable without imposing severe restrictions, in particular on
+how external input is handled. Additionally, we present a sound and complete plan synthesis algorithm. Notably, the plans it returns represent plan templates for the original
+synthesis problem, which is over an infinite domain. We then concentrate on eKABs
+based on lightweight DLs of the DL-Lite family [11, 9], and show that, in this case,
+plan synthesis can also be tackled by compilation into standard ADL, which can then
+be processed by any off-the-shelf ADL planner [24].
+
+2
+
+Description Logic Knowledge Bases
+
+Let ∆ be a countably infinite universe of objects, acting as standard names [22]. A (DL)
+knowledge base (KB) hT, Ai consists of a TBox T , capturing the intensional knowledge
+about the domain of interest, and an ABox A, capturing the extensional knowledge: T
+is a finite set of universal, first-order (FO) assertions based on concepts (unary predicates) and roles (binary relations); A is a finite set of assertions, or facts, i.e., atomic
+formulas N (d) and P (d, d0 ), with N a concept name, P a role name, and d, d0 ∈ ∆. By
+ADOM (A) we denote the set of objects occurring in A. For details on DLs, we refer to
+[2]. To maintain a clear separation between the intensional and the extensional levels,
+we disallow nominals (concepts interpreted as singletons) in T . We adopt the standard
+FO semantics for DL KBs. When hT, Ai is satisfiable, i.e., admits at least one model,
+we also say that A is T -consistent. A KB hT, Ai logically implies an ABox assertion
+α, written hT, Ai |= α, if every model of hT, Ai is also a model of α. Two ABoxes
+A1 and A2 are logically equivalent modulo renaming w.r.t. a TBox T , if they imply the
+same assertions, up to object renaming. When this holds, we write A1 ∼
+=hT A2 , where h
+denotes the bijection that renames the objects occurring in A1 into those in A2 .
+We use queries to extract information from aW KB. A union of conjunctive
+queries (UCQ) q over a KB hT, Ai is a FO formula 1≤i≤n ∃yi .conj i (x, yi ), where
+conj i (x, yi ) is a conjunction of equality assertions and atoms mentioning concept/role
+
+names of T , with variables from x ∪ y i and objects as terms. By ANS (q, T, A) we denote the set of (certain) answers of a query q over a KB hT, Ai, consisting of all the
+substitutions θ of q’s free variables with objects from ADOM(A), s.t. qθ holds in every
+model of hT, Ai. We also consider the ECQ [10], the extension of UCQs defined as:
+Q ::= [q] | ¬Q | Q1 ∧ Q2 | ∃x.Q,
+where q is a UCQ. The certain answers ANS (Q, T, A) of an ECQ Q over hT, Ai are
+obtained by first computing, for each atomic ECQ [q], the certain answers of q, and
+then composing the obtained answers through the FO constructs in Q, with existential variables ranging over ADOM(A). Hence [q] acts as a minimal knowledge operator,
+and negation and quantification applied over UCQs are interpreted epistemically [10].
+Under this semantics, ECQs are generic, in the classical sense of [1]: a query evaluated
+over two logically equivalent ABoxes returns the same answer modulo object renaming.
+As customary, we consider only DLs for which query answering (and hence the
+standard reasoning tasks of KB satisfiability and logical implication) is decidable. In
+our examples, we use the standard DL ALCQIH [2]. We also consider lightweight
+DLs of the DL-Lite family, in particular DL-LiteA [9], for which both checking KB
+satisfiability and answering ECQs over a KB are FO-rewritable [10, 9]. The latter means
+that every ECQ Q expressed over a DL-LiteA TBox T can be effectively rewritten into
+a FO query rew (Q, T ) such that, for every ABox A, the certain answers ANS (Q, T, A)
+can be computed by directly evaluating rew (Q, T ) over A seen as a database under the
+closed-world assumption. Also, T -consistency of A can be checked by evaluating over
+A an ECQ QTunsat (that depends on T only).
+
+3
+
+Explicit-input Knowledge and Action Bases
+
+We define Explicit-input Knowledge and Action Bases (eKABs) parametrically w.r.t. a
+DL L. An L-eKAB K is a tuple hC, C0 , T, A0 , Λ, Γ i, where: (i) C ⊆ ∆ is the (possibly
+infinite) object domain of K; (ii) C0 ⊂ C is a finite set of distinguished objects; (iii) T is
+an L-TBox; (iv) A0 is an L-ABox all of whose objects belong to C0 ; (v) Λ is a finite set
+of parametric actions; (vi) Γ is a finite set of condition-action rules. When the specific
+DL L is irrelevant, we omit it. We detail the latter two items below.
+A parametric action α has the form a(p) : {e1 , . . . , en }, where: a is the action’s
+name, p are the input parameters, and {e1 , . . . , en } is the finite set of conditional effects. Each effect ei has the form Qi
+add Fi+ , del Fi− , where: (i) Qi is the effect
+condition, i.e., an ECQ over T , whose terms can be action parameters p (acting as variables), additional free variables xi , or objects from C0 ; (ii) Fi+ and Fi− are two sets of
+atoms over the vocabulary of T , with terms from p ∪ xi ∪ C0 . Given an action α and a
+substitution θ, assigning objects of C to p, αθ denotes the action instance of α obtained
+by assigning values to p according to θ. We write α(p) to explicitly name the input
+parameters of α. The ABox resulting from the application of an action instance αθ on
+−
++
++
+an
+S ABox A,Sdenoted DO(αθ, A,+T ), is the−ABox
+S(A \ Aαθ )S∪ Aαθ , where: (i)−Aαθ =
+i∈{1,...,n}
+σ∈ANS (Qi θ,T,A) Fi σ; (ii) Aαθ =
+i∈{1,...,n}
+σ∈ANS (Qi θ,T,A) Fi σ. Importantly, αθ is applicable to A only if DO(αθ, A, T ) is consistent with T .
+A condition-action rule (CA rule) γα for an action α has the form Qα (x) 7→ α(p),
+where Qα is an ECQ mentioning only objects from C0 and whose free variables x come
+
+from p. We assume that each action α in Λ has exactly one corresponding conditionaction rule γα in Γ (multiple rules can be combined into a single disjunctive rule).
+The ECQ Qα is used to constrain the set of action instances potentially applicable to
+a certain Abox A. Specifically, let θ be a parameter substitution for p, and let θ[x]
+denote the parameter substitution obtained by projecting θ on x. Then, θ is a K-legal
+parameter substitution in A for α, if: (i) θ : p → C; (ii) θ[x] ∈ ANS (Qα , T, A); and
+(iii) DO(αθ, A, T ) is T -consistent. When this is the case, αθ is a K-legal action instance
+in A. Any variable in p \ x is also referred to as an external input parameter of α. Note
+that, when present, such parameters are not constrained by Qα and can be assigned to
+any object, including fresh ones not occurring in ADOM(A).
+The semantics of eKABs is defined in terms of transition systems (TSs) with states
+and transitions resp. labeled by ABoxes and action instances [13]. A TS Υ is a tuple
+hC, T, Σ, s0 , abox , →i, where: (i) C is the object domain; (ii) T is a TBox; (iii) Σ
+is a (possibly infinite) set of states; (iv) s0 ∈ Σ is the initial state; (v) abox is
+the labeling function, mapping states from Σ into T -consistent ABoxes with terms
+from C only; (vi) → ⊆ Σ × L × Σ is a labeled transition relation, with L the
+(possibly infinite) set of labels. An eKAB K = hC, C0 , T, A0 , Λ, Γ i generates a TS
+ΥK = hC, T, Σ, s0 , abox , →i, where: (i) abox is the identity function; (ii) s0 = A0 ;
+(iii) → ⊆ Σ × LK × Σ is a labelled transition relation with LK the set of all possible
+action instances; (iv) Σ and → are defined by mutual induction as the smallest sets s.t. if
+A ∈ Σ, then for every K-legal action instance αθ in A, we have that DO(αθ, A, T ) ∈ Σ
+αθ
+
+and A −−→ DO(αθ, A, T ). In general, ΥK is infinite, if C is so.
+Example 1. Consider an eKAB K = hC, C0 , T, A0 , Λ, Γ i used to support decision making in a
+company, where employees work on tasks. C contains infinitely many objects. The TBox T is expressed in ALCQIH, and contains the following axioms: Eng v Emp and Tech v Emp indicate that engineers and technicians are employees. ∃hasTask − v Emp and ∃hasTask v Task
+type the hasTask role, which links employees to tasks. Similar axioms can be used to express that
+worksIn links employees to branches of the company. Emp v (= 1 worksIn) states that employees work in one and only one branch. hasResp v (≤ 1 Emp) and hasResp v hasTask −
+indicate that a task may have at most one responsible, among those employees associated to that
+task. Finally, ∃hasResp − v ¬Tech states that technicians cannot be responsible for tasks.
+As for the dynamic aspects, to model that a new engineer can be hired in a branch provided
+that the planning agent does not know whether there already exists an engineer there, K has rule
+Branch(b) ∧ ¬[∃x.Eng(x) ∧ worksIn(x, b)] 7→ HireEng(x, b),
+where: HireEng(e, b) : {true
+add {Eng(e), worksIn(e, b)}}. A similar action
+HireTech(t, b) can be used to hire a technician. Rule Task (t) ∧ Emp(e) 7→ MakeResp(t, e)
+states that an employee can be made responsible of a task, where
+
+
+hasResp(t, prev) del{hasResp(t, prev)}
+MakeResp(t, e) :
+true add{hasResp(t, e)}
+removes the previous responsible of the selected task if there existed one, and makes the selected employee the new responsible. Finally, rule Emp(e) 7→ Anon(e) models that an employee can be anonymized, where action Anon(e) : {worksIn(e, b)
+del{worksIn(e, b)}}
+models anonymization by removing the explicit information on the branch to which the selected
+employee belongs. Note that there is a complex interplay between the TBox and the dynamic
+component of K. E.g., the last TBox axioms forbids to hire a technician and make it responsible
+for a task. However, notice that this is not explicitly forbidden in the condition-action rule that
+defines the (potential) applicability of the MakeResp action.
+
+4
+
+eKAB planning
+
+Let K be an eKAB and ΥK its generated TS. A plan for K is a finite sequence π =
+α1 θ1 · · · αn θn of action instances over LK . The plan π is executable on K if there exists
+α θn
+α θ1
+α θ2
+An of K. We call ρ the run induced
+a (unique) run ρ = A0 −−1−→
+A1 −−2−→
+· · · −−n−→
+by π and An the final state of ρ. A eKAB planning problem is a pair hK, Gi, with K an
+eKAB and G, the goal, a boolean ECQ mentioning only objects from C0 . A plan π for
+K achieves G, if ANS (G, An , T ) = true, for An the final state of the run induced by π.
+Example 2. Given the eKAB in Example 1, a goal G could express the intention to have an
+engineer and a technician working for a given task t, provided that, for privacy reasons, it is not
+known to the planning agent whether the two work in the same branch. Formally:
+∃e1 , e2 .Tech(e1 ) ∧ Eng(e2 ) ∧ hasTask (e1 , t) ∧ hasTask (e2 , t)
+∧ ¬[∃b.worksIn(e1 , b) ∧ worksIn(e2 , b)]
+where negation is in fact interpreted epistemically, in accordance with the semantics of ECQs.
+
+We first consider plan existence, i.e., the problem of checking whether, for a planning
+problem hK, Gi, an executable plan π for K exists that achieves G.
+Theorem 1. Let L be a DL for which answering ECQs3 is in CO NP in data complexity.
+Then plan existence for L-eKABs with a finite object domain is decidable in PS PACE in
+the size of the object domain.
+Theorem 2. Plan existence for eKABs with an infinite object domain is undecidable,
+even when the goal is a ground CQ, and the input eKAB has: (i) an empty TBox;
+(ii) actions/rules that employ UCQs only.
+We observe that the latter result is similar in spirit to an undecidability result by [16]
+for the propositional case, but cannot be derived from it, and required a separate proof.
+Next, we attack this undecidability result. To do so, we focus on a class of infinitedomain eKABs that enjoy the property of state-boundedness [3, 13, 6]. Specifically, an
+eKAB K is b-bounded if its generated TS ΥK = h T, Σ, s0 , abox , →i is such that for
+every state s ∈ Σ, we have |ADOM(abox (s))| ≤ b, that is, every state (or ABox) of ΥK
+contains at most b distinct objects . Note that a b-bounded eKAB still has, in general,
+infinitely many states. Indeed, from an infinite C, one can obtain infinitely many distinct
+ABoxes, each containing a bounded number of objects.
+For state-bounded eKABs, by applying [13] we get that checking plan existence is
+not more difficult than in the standard setting of propositional planning [8].
+Theorem 3. Plan existence over state b-bounded eKABs is decidable in PS PACE in b.
+3
+
+For a significant class of DLs, UCQ-query answering is known to be in CO NP in data complexity [19, 23, 12]. ECQs inherit this result, since they simply combine the certain answers
+returned by the embedded UCQs with the evaluation of the FO operators present in the query.
+
+Algorithm 1 Forward planning algorithm schema
+1:
+2:
+3:
+4:
+5:
+6:
+7:
+8:
+9:
+10:
+11:
+12:
+13:
+14:
+15:
+
+5
+
+function F IND P LAN(Prob)
+input: A planning problem Prob
+output: A plan that solves Prob, or fail if there is no solution
+V := ∅
+. Global set of visited states
+return F W S EARCH(Prob,INITIAL S TATE(Prob),)
+function F W S EARCH(Prob, s, π)
+input: A planning problem Prob, the current state s, and the sequence π of actions that led
+to s
+output: A plan that solves Prob, or fail if there is no solution
+if s ∈ V then return fail
+. Loop!
+V := V ∪ {s}
+if HOLDS(GOAL(Prob), s) then return π
+for all ha, s 0 i ∈ SUCCESSORS(Prob, s) do
+πn := F W S EARCH(Prob, s 0 , π · a)
+if πn 6= fail then return πn
+return fail
+
+Plan Synthesis
+
+We now focus on plan synthesis for eKABs. We first introduce a technique based on
+classical planning [7]. A classical planning domain is a triple D = hS, A, ρi, where S
+is a finite set of states, A is a finite set of actions, and ρ : S × A → S is a transition
+function. Domain states are propositional assignments, and actions are operators that
+change them, according to ρ. A classical planning problem is a triple P = hD, s0 , Gi,
+where D is a planning domain, s0 ∈ S is the initial state, and G ⊆ S is a set of goal
+states. A solution to P is a finite sequence of actions, called plan, that takes D from s0
+to a goal state, as a result of the changes made by the sequence of actions.
+A problem P induces a labelled graph G = hN, Ei, where N = S and E cona
+tains a (labelled) edge s → s0 iff s0 = ρ(s, a). Essentially, planning algorithms
+amount to searching (in an effective way) for a path in G from s0 to a goal state.
+Algorithm 1 shows the schema of a basic algorithm that synthesizes a plan through
+a forward search on the induced graph. The auxiliary functions INITIAL S TATE(Prob),
+GOAL (Prob), HOLDS(G, s), and SUCCESSORS(Prob, s) are self-explicative. Note that
+the schema above abstracts from the specific interpretation of states. In other words, it
+is applicable independently of the specific form of states and actions, once the functions
+above are instantiated on the case at hand. For instance, for classical planning problems
+P = hD, s0 , Gi with D = hS, A, ρi, we have INITIAL S TATE(P) = s0 , GOAL(P) = G,
+HOLDS(G, s) = true iff s ∈ G, and SUCCESSORS(P, s) = {ha, s0 i | s0 = ρ(s, a)}.
+Next, we show how this schema can be used for eKABs plan synthesis. Our proposal results in an algorithm that is correct, i.e., that (i) terminates, (ii) preserves plan
+existence, and (iii) produces proper plans, i.e., if it does not fail, the output corresponds
+to a proper solution to the input planning problem. We stress that while we present
+the lifting on Algorithm 1, the same approach applies to any other, possibly optimized,
+algorithm. Indeed, the lifting strategy is agnostic to the search space traversal fashion.
+
+Algorithm 2 Plan synthesis for state-bounded eKABs.
+1: function F IND P LAN - E K AB SB(E, b)
+2: input: An eKAB planning problem E = hK, Gi, where K = hC, C0 , T, A0 , Λ, Γ i is bbounded and C is infinite
+3: output: A plan that solves E, or fail if there is no solution
+4:
+n := max{k | there
+( is α ∈ Λ with k parameters}
+C0 ⊆ Cb ⊂ C
+. Abstract dom.
+5:
+pick Cb such that
+b = b + n + |C0 |
+|C|
+b := hC,
+b C0 , T, A0 , Λ, Γ i
+6:
+K
+b Gi)
+7:
+return F IND P LAN - E K AB FD(hK,
+
+5.1
+
+Plan Synthesis for eKABs
+
+We consider the two classes of eKABs for which decidability of plan existence has been
+established in Section 4.
+eKABs with Finite Domain. This case differs from classical planning in that eKABs
+have ABoxes as states, and they provide an implicit representation of successor states
+in terms of actions and condition-action rules. The former aspect requires to replace
+propositional entailment with ECQ query answering when checking whether the goal
+has been reached. The latter requires to use DO to compute a state’s successors. Specifically, given an eKAB planning problem E = hK, Gi, where K = hC, C0 , T, A0 , Λ, Γ i,
+with finite C, Algorithm 1 can be instantiated as follows: (i) INITIAL S TATE(E) = A0 ;
+(ii) GOAL(E) = G; (iii) HOLDS(E, A) = ANS (G, T, A); (iv) SUCCESSORS(E, A) returns the set of pairs hαθ, A0 i, where (a) α ∈ Λ, (b) θ is a K-legal parameter substitution in A for α, and (c) A0 = DO(αθ, A, T ). We call the resulting algorithm
+F IND P LAN - E K AB FD. By this instantiation, the search space of F IND P LAN - E K AB FD
+is exactly ΥK , which is finite, so being the eKAB domain. Thus, we have:
+Theorem 4. F IND P LAN - E K AB FD terminates and is sound and complete.
+Plan Synthesis for State-Bounded eKABs. We now consider state-bounded eKABs
+over an infinite object domain. In this case, the search space is potentially infinite. Thus,
+F IND P LAN - E K AB FD is not readily applicable anymore, as termination is not guaranteed. To tackle this problem, instead of visiting the original, infinite, search space, we
+work on a finite-state abstraction of the eKAB. We first argue that the execution semantics of eKABs has two properties: (i) it is driven by ECQ-query answering, which
+is generic (cf. Section 2); (ii) all allowed configurations of external input parameters
+are considered when applying an action. These imply that eKABs are generic DLDSs
+in the sense of [13], which, together with state-boundedness, allows us to apply the
+same abstraction technique used by [13]. In particular, reachability is preserved if the
+infinite-state TS induced by the input eKAB is shrunk into a finite-state TS over a finite, but sufficiently large, object domain. We leverage this technique as the core of
+the F IND P LAN - E K AB SB procedure shown in Algorithm 2, which reduces the original
+planning problem over an infinite search space to a classical planning problem.
+It can be checked that all correctness conditions are satisfied: (i) is a consequence
+of Theorem 4; (ii) holds because the finite-state abstraction preserves reachability;
+
+(iii) holds because the search space of the finite-state abstraction is contained into that
+of the original eKAB. Thus, we have:
+Theorem 5. F IND P LAN - E K AB SB terminates and is sound and complete.
+Example 3. Consider again the eKAB K in Example 1, together with goal G in Example 2.
+Notice that K is state-bounded, as the only way to increase the number of objects present in the
+system is by hiring someone, but the number of hirings is in turn bounded by the number of
+company branches (which is fixed once and for all in the initial state). Now assume that the initial
+state indicates the known existence of a main and a subsidiary branch for the company, as well
+as the fact that task t has an assigned technician from the main branch: A0 = {Branch(main),
+Branch(sub), Tech(123), worksIn(123, main), hasTask (123, t)}.
+A possible plan leading from A0 to a state where G holds is π1
+=
+HireEng(452, sub) MakeResp(t, 452). This plan achieves G by hiring an engineer in a
+different branch from that of 123, with whom the engineer shares task t. Observe, again, the
+interplay between the actions and the TBox: while no action explicitly indicates that 452 has
+task t, this is implicitly obtained from the fact that such an engineer is made responsible for t.
+Another, quite interesting plan achieving G is: π2
+= HireEng(521, main)
+MakeResp(t, 521) Anon(521). In this case, an engineer is hired in the same branch of
+technician 123, and made responsible for task t. These two actions do not suffice to achieve
+G, since the planning agent knows that the two employees work in the same branch. This
+knowledge is somehow “retracted” by anonymizing the hired engineer: after the execution of
+Anon(521), the planning agent still knows that 521 must work in some branch (this is enforced
+by a dedicated TBox axiom), but does not know which one, thus satisfying also the (epistemic)
+negative part of the goal.
+
+5.2
+
+Plan Templates and Online Instantiation
+
+b
+F IND P LAN - E K AB SB returns plans with ground actions mentioning only objects in C,
+b Such plans can be regarded as plan templates
+as objects from C \ Cb are not used in K.
+from which we can obtain regular plans for K. This comes as a consequence of genericity, which, intuitively, implies that a plan keeps achieving a goal even if the objects
+mentioned in its actions are consistently renamed.
+To formalize this intuition, we recast the notion of equality commitment [13] in
+this setting. Let B be a set of objects, and I a set of external input parameters. An
+equality commitment (EC) H over a finite set S ⊆ B ∪ I is a partition {H1 , . . . , Hn }
+of S s.t. each Hj contains at most one object from B. A substitution θ : I → B is
+compatible with H if: (i) for every pair of parameters i1 , i2 ∈ I, we have that i1 θ = i2 θ
+iff i1 and i2 belong to the same Hj ; and (ii) whenever Hj contains an object d ∈ B,
+then iθ = d for every i ∈ Hj . Intuitively, θ is compatible with H if it maps parameters
+from the same class into the same object, and parameters from different classes into
+distinct objects. Finally, given a finite set B 0 ⊂ B and a substitution θ : I → B, fix
+an ordering O = hd1 , . . . , dn i over the set Bcur = B 0 ∪ IM(θ) of the objects that are
+either mentioned in B 0 or assigned to I by θ. The EC H induced by θ over B 0 (under
+O) is the partition H = {H1 , . . . , Hn }, s.t., for j ∈ {1, . . . , n}: (i) Hj contains dj
+iff dj ∈ B 0 , i.e., objects mentioned by θ but not present in B 0 are discarded; (ii) Hj
+contains i ∈ DOM(θ) iff θ(i) = dj , i.e., all parameters mapped to the same, j-th object
+are included in the j-th equivalence class.
+We can now state the following key result.
+
+Algorithm 3 Online instantiation of a previously returned plan template.
+1: procedure ONLINE E XEC(K, π)
+2: input: An eKAB K = hC, C0 , T, A0 , Λ, Γ i, and a plan π = α1 θ1 · · · αm θm
+3:
+Ao := A0
+. old, effective state
+4:
+An := A0
+. current, effective state
+5:
+h : C0 → C0 s.t. h(d) = d for each d ∈ C0
+. cur. bijection
+6:
+for k ∈ {1, . . . , m} do
+7:
+H := eq. commitment induced by θi over ADOM(A)
+8:
+pick θk0 that is compatible with h(H)
+. Agent choice
+9:
+A0o := DO(αi θk , Ao , T )
+10:
+A0n := DO(αi θk0 , An , T )
+11:
+hn : C0 ∪ ADOM(Ao ) → C0 ∪ ADOM(An ) s.t.
+
+for d ∈ C0
+hn (d) = d,
+
+
+h (d) = h(d),
+for d ∈ ADOM(A0o ) ∩ ADOM(Ao )
+n
+12:
+0
+
+hn (θk (i)) = θk (i), for i param. of αk
+
+
+
+s.t. θk (i) ∈
+/ ADOM(Ao )
+13:
+h := hn , Ao := A0o , An := A0n
+
+Lemma 1. Let K = hC, C0 , T, A0 , Λ, Γ i be a eKAB, and A1 , A01 two ABoxes over T
+such that A1 ∼
+=hT A01 for some object renaming h. Let α(p, i) be an action in Λ with
+external input parameters i, and θ a K-legal substitution in A1 for α. Let H be the
+equality commitment induced by θ over ADOM(A1 ), and H 0 = h(H) the equality commitment obtained from H by renaming each d ∈ ADOM(A1 ) with h(d) ∈ ADOM(A2 ).
+If θ0 is a parameter substitution for p and i compatible with H 0 , then: (i) θ0 is a K-legal
+0
+parameter for α in A01 ; (ii) DO(αθ, A1 , T ) ∼
+=hT DO(αθ0 , A01 , T ), where h0 extends h in
+such a way that for every parameter i of α, if θ(i) 6∈ ADOM(A1 ), then h0 (θ(i)) = θ0 (i).
+Intuitively, Lemma 1 states that, modulo object renaming consistent with a parameter substitution that induces the same equality commitment, the same action can be
+applied to two logically equivalent ABoxes. Furthermore, such action induces the same
+update, modulo renaming of the objects mentioned in the two ABoxes and the involved
+parameters. In Algorithm 3, we exploit this result to build, in an online fashion, a plan
+b This provides the freedom of dynamically choosing
+for K starting from one for K.
+which actual objects to use when actions are executed, provided that the choice induces
+the same equality commitment induced by the parameter substitution in the original
+plan. By Lemma 1, we obtain:
+Theorem 6. Let E = hK, Gi be an eKAB planning problem. If π is a plan that achieves
+G, then ONLINE E XEC(K, π) is guaranteed to achieve G for each possible choice.
+Example 4. Consider plan π2 of Example 3. This plan can be lifted online by the planning
+agent as follows: when hiring the engineer, the planning agent can freely inject a fresh employee
+identifier in place of 521, provided that the chosen identifier is then consistently used in the
+subsequent actions. In other words, π2 acts as a blueprint for the infinite family of plans of the
+form HireEng(Id, main) MakeResp(t, Id) Anon(Id), where Id is selected on-the-fly when the
+planning agent executes HireEng, and is such that it is different from all the objects present in A0
+
+(this reconstructs the same equality commitment as in the case of 521). All such infinite plans are
+guaranteed to achieve G.
+
+6
+
+Plan Synthesis for Lightweight eKABs
+
+We consider plan synthesis for state-bounded eKABs over the lightweight DL DL-LiteA
+[9], and devise a technique based on compilation into ADL planning [24, 15]. An ADL
+planning problem is a tuple hC, C0 , F, A, ϕ, ψi, where: (i) C is a finite object domain;
+(ii) C0 ⊆ C is the set of initial objects; (iii) F is a finite set of fluents, i.e., predicates
+whose extension can vary over time; (iv) A is a finite set of ADL operators; (v) ϕ is
+the initial state, i.e., a conjunction of ground literals using predicates in F and objects
+in C0 ; and (vi) ψ is the goal description, i.e., a closed FO formula using predicates
+in F and objects in C0 . Each ADL operator in A is a tuple hN, x, ρ(x), ε(x)i, where:
+(i) N is the name; (ii) variables x are the parameters; (iii) ρ(x) is the precondition,
+i.e., a FO formula over F, and whose terms are quantified variables, objects in C0 , and
+parameters x; (iv) ε(x) is the effect, i.e., the universal closure of a FO conjunction
+built from admissible components, inductively defined as follows: (a) fluent literals
+over F whose terms are variables, objects in C0 , or parameters in x, are admissible;
+(b) if φ1 (y 1 ) and φ2 (y2 ) are admissible, then φ1 (y 1 ) ∧ φ2 (y 2 ) and ∀y 1 .φ1 (y 1 ) are
+also admissible; (c) given a FO formula φ1 (y 1 ) over F, whose terms are quantified
+variables, objects in C0 , variables y1 , or parameters x, if φ2 (y 2 ) is admissible and does
+not contain any occurrence of → nor ∀, then φ1 (y 1 ) → φ2 (y 2 ) is also admissible (this
+is used to tackle so-called ADL conditional effects).
+Translation Procedure. We now define a syntactic, modular translation procedure
+LE K AB 2A DL that takes as input a DL-LiteA -eKAB planning problem E = hK, Gi
+with K = hC, C0 , T, A0 , Λ, Γ i, and produces a corresponding ADL planning problem
+PK = hCK , C0 , FK , AK , ϕK , ψG i.
+Object domain. As in Section 5, if C is finite, so is CK . If instead C is infinite but K is
+b-bounded, we fix CK to contain C0 plus n + b objects from C.
+Fluents. FK is obtained by encoding concept and role names in T into corresponding unary and binary fluents. It also contains two special nullary fluents: ChkCons,
+distinguishing normal execution modality from check consistency modality of PK , and
+Error , marking when the consistency check fails.
+Operators. AK is obtained by transforming every action in Λ, with its condition-action
+rule in Γ , into an ADL operator: each action’s effect produces a conditional effect in the
+ADL operator, and the condition-action rule its precondition. Since in ADL, FO formulae are directly evaluated over FO structures (without ontological reasoning), we have
+to suitably consider the contribution of T . Indeed (cf. Section 3), T is used both during
+query answering and to check whether the ABox resulting from an action instance is
+T -consistent. We tackle both problems by relying on DL-LiteA ’s FO rewritability of
+both ECQs and T -consistency checks (cf. Section 2). To embed such checks into ADL,
+we force AK to alternate between two phases: the normal execution modality, where
+a “normal” ADL operator is applied, mirroring the execution of an action instance of
+
+K; and the check consistency modality, where a special ADL operator checks if the obtained state is T -consistent. Alternation is realized by toggling the fluent ChkCons, and
+activating Error when the consistency check fails, thus blocking operator application.
+Technically, consider an action α = a(p) : {e1 , . . . , en } in Λ and its corresponding
+condition-action rule Qα (x) 7→ a(p) in Γ . Let z = p \ x. We produce a corresponding ADL operator ha, p, ρα (p), εα (p)i. Its precondition ρα (p) corresponds to the FO
+formula rew (Qα (x), T )∧¬ChkCons ∧¬Error , which leaves the external input parameters z unconstrained. The operator effect εα (p) is the FO conjunction of the translation
+of e1 , . . . , en . Each ei = Qi (p, xi )
+add Fi+ , del Fi− generates the conjunct:
+^
+^
+rew (Qi (p, xi ), T ) → Pj (p, xi ) ∧ ¬Pk (p, xi ) ∧ ChkCons
+Pj (p,xi )∈Fi+
+
+Pk (p,xi )∈Fi−
+
+Finally, the special ADL operator used to check T -consistency is hcheck , ∅, ρchk , εchk i,
+where ρchk = ChkCons, just checks whether the check flag is on, while εchk takes care
+of toggling the flag, as well as of triggering the error flag if an inconsistency is detected:
+εchk = ¬ChkCons ∧ (QTunsat → Error )
+Initial state specification.
+ϕK is by constructing the conjunction of all facts contained
+V
+in A0 : ϕK = Pi (o)∈A0 Pi (o).
+Goal description. The goal description ψG is obtained from goal G in E as ψG =
+rew (G, T ) ∧ ¬ChkCons ∧ ¬Error .
+The two-fold contribution of T is taken care, as in the operators, by rewriting G (via
+rew (G, T )) and ensuring that the ending state is T -consistent (by requiring the absence
+of the consistency check and error flags in ψG ).
+We close by considering the following algorithm, called F IND P LAN - LE K ABA DL:
+(i) take as input a DL-LiteA -eKAB planning problem E; (ii) translate E into an ADL
+planning problem using LE K AB 2A DL; (iii) invoke an off-the-shelf ADL planner; (iv) if
+the planner returns fail, return fail as well; (v) if the planner returns a plan π, filter away
+all check operators from π, and return it as a result.
+Theorem 7. F IND P LAN - LE K ABA DL terminates and is sound and complete.
+
+7
+
+Conclusion
+
+To test the feasibility of our proposal for knowledge-intensive planning, we ran a preliminary empirical evaluation of the framework of Section 6. We considered a DLLiteA -eKAB over the domain of Example 1, translated it into ADL, and fed it as input
+via PDDL to an off-the-shelf planner (we used FastDownward4 ). We varied the difficulty by increasing the bound on the object domain, thus affecting the number of ground
+atoms for the planner. With 9 domain elements, resulting in ∼2 000 atoms, a plan was
+found in under 1s. For 30 elements (∼300 000 atoms) a plan was found in 120s, while
+for 35 elements (∼1 200 000 atoms) the planner timed out. Although preliminary, we
+consider these result positive, given the complexity of the setting, and the fact that we
+did not apply any optimization. Optimizations are left for future work.
+4
+
+http://www.fast-downward.org/
+
+References
+1. Abiteboul, S., Hull, R., Vianu, V.: Foundations of Databases. Addison Wesley Publ. Co.
+(1995)
+2. Baader, F., Calvanese, D., McGuinness, D., Nardi, D., Patel-Schneider, P.F. (eds.): The Description Logic Handbook: Theory, Implementation and Applications. Cambridge University
+Press (2003)
+3. Bagheri Hariri, B., Calvanese, D., De Giacomo, G., Deutsch, A., Montali, M.: Verification
+of relational data-centric dynamic systems with external services. In: Proc. of PODS 2013.
+pp. 163–174 (2013)
+4. Bagheri Hariri, B., Calvanese, D., Deutsch, A., Montali, M.: State-boundedness in dataaware dynamic systems. In: Proc. of KR 2014. AAAI Press (2014)
+5. Bagheri Hariri, B., Calvanese, D., Montali, M., De Giacomo, G., De Masellis, R., Felli, P.:
+Description logic Knowledge and Action Bases. J. of Artificial Intelligence Research 46,
+651–686 (2013)
+6. Belardinelli, F., Lomuscio, A., Patrizi, F.: Verification of agent-based artifact systems. J. of
+Artificial Intelligence Research 51, 333–376 (2014)
+7. Brachman, R.J., Levesque, H.J.: Knowledge Representation and Reasoning. Morgan Kaufmann (2003)
+8. Bylander, T.: The computational complexity of propositional STRIPS planning. Artificial
+Intelligence 69(1–2), 165–204 (1994)
+9. Calvanese, D., De Giacomo, G., Lembo, D., Lenzerini, M., Poggi, A., Rodriguez-Muro, M.,
+Rosati, R.: Ontologies and databases: The DL-Lite approach. In: Tessaris, S., Franconi, E.
+(eds.) RW 2009 Tutorial Lectures, LNCS, vol. 5689, pp. 255–356. Springer (2009)
+10. Calvanese, D., De Giacomo, G., Lembo, D., Lenzerini, M., Rosati, R.: EQL-Lite: Effective first-order query processing in description logics. In: Proc. of IJCAI 2007. pp. 274–279
+(2007)
+11. Calvanese, D., De Giacomo, G., Lembo, D., Lenzerini, M., Rosati, R.: Tractable reasoning
+and efficient query answering in description logics: The DL-Lite family. J. of Automated
+Reasoning 39(3), 385–429 (2007)
+12. Calvanese, D., De Giacomo, G., Lembo, D., Lenzerini, M., Rosati, R.: Data complexity of
+query answering in description logics. Artificial Intelligence 195, 335–360 (2013)
+13. Calvanese, D., De Giacomo, G., Montali, M., Patrizi, F.: Verification and synthesis in description logic based dynamic systems. In: Proc. of RR 2013. LNCS, vol. 7994, pp. 50–64.
+Springer (2013)
+14. Cimatti, A., Pistore, M., Traverso, P.: Automated planning. In: Handbook of Knowledge
+Representation, Foundations of Artificial Intelligence, vol. 3, pp. 841–867. Elsevier (2008)
+15. Drescher, C., Thielscher, M.: A fluent calculus semantics for ADL with plan constraints. In:
+Proc. of JELIA 2008. LNCS, vol. 5293, pp. 140–152. Springer (2008)
+16. Erol, K., Nau, D.S., Subrahmanian, V.S.: Complexity, decidability and undecidability results
+for domain-independent planning. Artificial Intelligence 76(1–2), 75–88 (1995)
+17. Gabbay, D., Kurusz, A., Wolter, F., Zakharyaschev, M.: Many-dimensional Modal Logics:
+Theory and Applications. Elsevier (2003)
+18. Ghallab, M., Nau, D.S., Traverso, P.: Automated planning – Theory and Practice. Elsevier
+(2004)
+19. Glimm, B., Lutz, C., Horrocks, I., Sattler, U.: Conjunctive query answering for the description logic SHIQ. J. of Artificial Intelligence Research 31, 151–198 (2008)
+20. Hoffmann, J., Bertoli, P., Helmert, M., Pistore, M.: Message-based web service composition, integrity constraints, and planning under uncertainty: A new connection. J. of Artificial
+Intelligence Research 35, 49–117 (2009)
+
+21. Levesque, H.J.: Foundations of a functional approach to knowledge representation. Artificial
+Intelligence 23, 155–212 (1984)
+22. Levesque, H.J., Lakemeyer, G.: The Logic of Knowledge Bases. The MIT Press (2001)
+23. Ortiz, M., Calvanese, D., Eiter, T.: Data complexity of query answering in expressive description logics via tableaux. J. of Automated Reasoning 41(1), 61–98 (2008)
+24. Pednault, E.P.D.: ADL and the state-transition model of action. J. of Logic and Computation
+4(5), 467–512 (1994)
+25. Wolter, F., Zakharyaschev, M.: Temporalizing description logic. In: Gabbay, D., de Rijke, M.
+(eds.) Frontiers of Combining Systems, pp. 379–402. Studies Press/Wiley (1999)
+
+

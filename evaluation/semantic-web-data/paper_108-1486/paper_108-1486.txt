@@ -1,0 +1,282 @@
+Test-driven Assessment of [R2]RML Mappings
+to Improve Dataset Quality
+Anastasia Dimou1 , Dimitris Kontokostas2 , Markus Freudenberg2 ,
+Ruben Verborgh1 , Jens Lehmann2 , Erik Mannens1 ,
+Sebastian Hellmann2 , and Rik Van de Walle1
+1
+
+2
+
+Ghent University - iMinds - Multimedia Lab, Belgium
+{firstname.lastname}@ugent.be
+Universitat Leipzig, Institut fur Informatik, AKSW, Germany
+{lastname}@informatik.uni-leipzig.de
+
+Abstract. rdf dataset quality assessment is currently performed primarily after data is published. Incorporating its results, by applying corresponding adjustments to the dataset, happens manually and occurs
+rarely. In the case of (semi-)structured data (e.g., csv, xml), the root
+of the violations often derives from the mappings that specify how the
+rdf dataset will be generated. Thus, we suggest shifting the quality assessment from the rdf dataset to the mapping definitions that generate
+it. The proposed test-driven approach for assessing mappings relies on
+rdfunit test cases applied over mappings specified with rml. Our evaluation is applied to different cases, e.g., dbpedia, and indicates that the
+overall quality of an rdf dataset is quickly and significantly improved.
+Keywords: Linked Data Mapping, Data Quality, rml, rrml, rdfunit
+
+1
+
+Introduction
+
+Although more and more data is published as Linked Data, there are significant
+variations in quality [6], commonly conceived as “fitness for use” for a certain
+application or use case. Similar violation patterns reoccur frequently, and most
+encountered violations are related to the dataset’s schema, namely the vocabularies or ontologies used to annotate the data [4]. When datasets stem originally
+from semi-structured formats (e.g., csv, xml), the schema is derived from the
+set of classes and properties specified by the mappings which are applied repeatedly. Consequently, the same violations are repeated in the dataset as well.
+Lately, combinations of different ontologies and vocabularies are used to annotate data [5]. This increases the likelihood of such violations, as they often derive
+from incorrect usage or incorrect combinations of schemas in the mappings.
+Taking mappings of data to rdf as a software engineering task, a set of unit
+test cases can be assigned to the mappings to ensure the correct generation of
+rdf datasets from input data. Incorporating quality assessment as part of the
+mapping is essential to prevent the same violations from appearing repeatedly
+within the dataset and over distinct entities. After all, structural adjustments
+
+2
+
+Anastasia Dimou et al.
+
+can still be applied in this phase, as violations are identified at their root. Moreover, if mappings are assessed, every other new data source also mapped using
+them directly benefits from the improvements. Therefore, we proposed a uniform
+solution [1] that assesses the quality of an rdf dataset, covering both the mappings and the dataset. In this work, we aim to elaborate more on how rdfunit
+patterns [4] for dataset test cases were arose to cover rml mappings [2], too.
+
+2
+
+[R2]RML Mappings Quality Assessment with RDFUnit
+
+Our solution relies on the rdf mapping language (rml) [2] that allows specifying
+mapping definitions expressed in rdf, and the rdfunit validation framework
+due to its associated test-case-based architecture [3]. For our proof-of-concept
+implementation3 , rdfunit test cases are applied to mappings defined with rml.
+RML extends rrml4 , the wc recommended language for defining mappings
+of data in relational databases to rdf, and also covers mappings from sources in
+different semi-structured formats, such as csv and json [2]. rml documents [2]
+specify how the input data can be represented in rdf. The main building blocks
+of rml documents are Triples Maps that define how triples are generated and
+consist of three main parts: the Logical Source, the Subject Map and zero or more
+Predicate-Object Maps. Term Maps define how rdf terms (iri, blank node or literal)
+are generated. A Term Map can be constant-valued that always generates the same
+rdf term, reference-valued that is the data value of a referenced data fragment
+in a given Logical Source, or template-valued which is a valid string template that
+can contain referenced data fragments of a given Logical Source.
+RDFUnit [4] is an rdf validation framework inspired by test-driven software
+development. In rdfunit, every vocabulary, ontology, dataset or application can
+be associated by a set of data quality test cases. The test case definition language
+of rdfunit is sparql, convenient to directly query for identifying violations. For
+rapid test case instantiation, a pattern-based sparql-template engine, running
+over a library of common patterns5 , is supported where variables can be easily
+bound into patterns. rdfunit has a Test Auto Generator (tag) component. tag
+searches for schema information and automatically instantiates new test cases.
+As [r]rml mappings can be processed as rdf documents, because of their
+native rdf representation and viewpoint (written as the generated triples), the
+same set of schema validation patterns normally applied on the rdf dataset is
+also applicable on the mappings that state how it is generated. Nevertheless,
+instead of validating the triple’s predicate against its subject and object, the
+predicate is extracted from the Predicate Map and is validated against the Term
+Maps that generate the subject and object. To achieve this, the properties and
+classes are identified and their namespaces are used to retrieve the schemas and
+3
+
+https://github.com/mmlab/RMLValidator
+http://www.w3c.org/TR/R2RML
+5
+https://github.com/AKSW/RDFUnit/blob/master/configuration/patterns.ttl
+4
+
+Test-driven Assessment of [R2]RML Mappings
+
+3
+
+Fig. 1. (i) rml mapping (left) (ii) and corresponding example of a generated triple (right).
+The range (xsd:integer) of the specified predicate (foaf:age) is different compared to the
+one in the Object Map (xsd:float) causing a violation. Similarly occurs for the Subject Map.
+
+generate the test cases as if they were the actual dataset. The expected value,
+as derived from the Predicate Map, is compared to the defined one, as derived
+from the corresponding Subject Map and Object Map. For example, the extracted
+predicate is foaf:age normally expects an instance of foaf:Agent type for its
+domain and an integer datatype for its range, but the Term Map that generates
+the subject is defined to be of foaf:Project type and the object is defined to
+have a float value. Its mapping document follows:
+<#Mapping> rr:subjectMap [rr:template "http://example.com/{id}"; rr:class foaf:Project];
+rr:predicateObjectMap [rr:predicate foaf:age; rr:objectMap [rml:reference "age"]].
+
+Corresponding rdfunit test cases and patterns were defined to apply to
+the mappings, adjusting the assessment queries.6 The defined test cases cover
+all possible alternative ways of defining equivalent mappings that generate the
+same triples. rdfunit can annotate test cases by requesting additional variables
+and binding them to specific result properties. The test case patterns applied to
+the aforementioned example and its instantiation are indicatively presented. On
+the left, the where clause of a sparql template query that assesses the datatype
+is presented. On the right it is presented how it is instantiated:
+?resource %%P1%% ?c.
+FILTER (DATATYPE(?c) != %%D1%%)
+
+?resource foaf:age ?c.
+FILTER (DATATYPE(?c) != xsd:int)
+
+The following is the where clause of the same test case applied to the mapping:
+?resource rr:predicateObjectMap ?poMap.
+?poMap rr:predicate %%P1%%;
+rr:objectMap ?objM.
+?objM rr:datatype ?c.
+FILTER (?c != %%D1%%)
+
+3
+
+?resource rr:predicateObjectMap ?poMap.
+?poMap rr:predicate foaf:age;
+rr:objectMap ?objM.
+?objM rr:datatype ?c.
+FILTER (?c != xsd:int)
+
+Evaluation and Discussion
+
+The assessed datasets and corresponding mappings, as well as the assessment
+results are summarized in Table 1: dbpedia mappings7 , after the mappings were
+converted from wikitext markup to rml8 , and its dataset were assessed. dblp
+6
+
+https://github.com/AKSW/RDFUnit/blob/master/data/tests/Manual/www.w3.org/ns/r2rml/rr.
+tests.Manual.ttl
+7
+http://mappings.dbpedia.org/
+8
+https://goo.gl/GPB1Ar
+
+4
+
+Anastasia Dimou et al.
+
+dataset
+DBpEn
+DBpNL
+DBLP
+iLastic10
+CDFLG11
+CEUR-WS12
+
+size
+62M
+21M
+12M
+150K
+0.6K
+2.4K
+
+dataset assessment
+time
+#fail.
+#viol.
+16h
+1,128
+3.2M
+1.5h
+683
+815K
+12h
+7
+8.1M
+12s
+23
+37K
+7s
+15
+678
+6s
+7
+783
+
+size
+115K
+53K
+368
+825
+558
+702
+
+mapping assessment
+time
+#fail.
+#viol.
+11s
+1
+160
+6s
+1
+124
+12s
+2
+8
+15s
+3
+26
+13s
+4
+16
+5s
+3
+12
+
+triples
+255K
+106K
+8M
+37K
+631
+783
+
+Table 1. The number of triples (size), number of test cases, evaluation time, failed test
+cases and total individual violations appear for both dataset and mapping assessment.
+
+mappings, after the mappings were converted to rml9 , and the corresponding
+dataset were assessed, too. The results show that the required quality assessment
+time is significantly reduced if the mappings are assessed instead of the rdf
+dataset, especially in the case of medium/large datasets. That happens because
+the dataset assessment requires examining each triple separately to identify,
+for instance, that 12M triples violated the predicate’s range, whereas mapping
+assessment requires only 1 triple to be examined. The effectiveness of mapping
+assessments is also high: the identified violations can be accurately indicated.
+Acknowledgements. This paper’s research activities were funded by Ghent
+University, iMinds, the Institute for the Promotion of Innovation by Science and
+Technology in Flanders, the Fund for Scientific Research-Flanders and by grants
+from the EU’s 7th & H2020 Programmes for projects ALIGNED (GA 644055),
+GeoKnow (GA 318159) and LIDER (GA 610782).
+
+References
+1. A. Dimou, D. Kontokostas, M. Freudenberg, R. Verborgh, J. Lehmann, E. Mannens,
+S. Hellmann, and R. Van de Walle. Assessing and Refining Mappings to RDF to
+Improve Dataset Quality. In Proceedings of the 14th International Semantic Web
+Conference, Oct. 2015.
+2. A. Dimou, M. Vander Sande, P. Colpaert, R. Verborgh, E. Mannens, and R. Van de
+Walle. RML: A Generic Language for Integrated RDF Mappings of Heterogeneous
+Data. In Workshop on Linked Data on the Web, 2014.
+3. D. Kontokostas, M. Brümmer, S. Hellmann, J. Lehmann, and L. Ioannidis. NLP
+data cleansing based on Linguistic Ontology constraints. In Proc. of the Extended
+Semantic Web Conference 2014, 2014.
+4. D. Kontokostas, P. Westphal, S. Auer, S. Hellmann, J. Lehmann, R. Cornelissen,
+and A. Zaveri. Test-driven Evaluation of Linked Data Quality. In Proceedings of
+the 23rd International Conference on World Wide Web, pages 747–758, 2014.
+5. M. Schmachtenberg, C. Bizer, and H. Paulheim. Adoption of the Linked Data Best
+Practices in Different Topical Domains. volume 8796 of LNCS. Springer, 2014.
+6. A. Zaveri, A. Rula, A. Maurino, R. Pietrobon, J. Lehmann, and S. Auer. Quality
+Assessment for Linked Data: A Survey. Semantic Web Journal, 2015.
+9
+10
+11
+12
+
+https://github.com/RMLio/D2RQ_to_R2RML.git
+http://explore.ilastic.be/
+http://ewi.mmlab.be/cd/all
+http://rml.io/rml/data/SPC2015/
+
+
