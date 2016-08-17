@@ -28,7 +28,7 @@ class PdfTextLangdetectWorker(AbstractWorker):
         for language in langinfo.keys():
             percentage = langinfo[language] / total
             if percentage >= 0.2:
-                print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
+                # print('language: ' + language + ' percentage: ' + str(langinfo[language] / total))
                 # model.add((tags, namespaces.dcterms.language, Literal(langinfo[language] / total)))
                 annotation = create_annotation(
                                             (namespaces.oa.percentage, Literal(langinfo[language] / total, datatype=XSD.decimal)),

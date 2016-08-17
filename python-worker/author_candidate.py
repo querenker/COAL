@@ -44,7 +44,7 @@ class AuthorCandidate:
 
 
     def sanitized_candidate(self):
-        print(self)
+        # print(self)
         author = self.candidate_string
         author = ''.join(c for c in author if c.isalpha() or c in {' ', '.', '-', '’', chr(0x02ca), chr(0x00b4), chr(0x0301)}).strip()
         author = re.sub(r'^\w | \w$', '', author)
@@ -162,3 +162,11 @@ class AuthorCandidate:
             if candidate.confidence() >= min_confidence:
                 authors.add(candidate.sanitized_candidate())
         return authors
+
+    def get_author_candidates_from_text(text, known_words, first_names, stop_words, min_confidence=0.5):
+        candidates = set()
+        for candidate in AuthorCandidate.preprocess_input(text):
+            candidate.calculate_confidences(stop_words, first_names, known_words)
+            if candidate.confidence() >= min_confidence:
+                candidates.add(candidate)
+        return candidates

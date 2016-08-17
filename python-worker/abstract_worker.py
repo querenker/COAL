@@ -4,6 +4,8 @@ import os
 import pika
 import rdflib
 from worker_util import get_cache_filename
+import time
+import sys
 
 
 class AbstractWorker():
@@ -24,8 +26,15 @@ class AbstractWorker():
 
         def callback(ch, method, properties, body):
             print(' [x] Received %r' % body)
+            begin = time.clock()
             self.process_data(body)
+
             ch.basic_ack(delivery_tag=method.delivery_tag)
+            end = time.clock()
+            delta = end - begin
+            print(' [timer] finished message in ' + str(delta) + ' seconds.')
+            with open('/home/bliu/tmp/coal.log', 'a') as file:
+                file.write(sys.argv[0] + ',' + str(delta) + '\n')
 
         channel.basic_consume(callback, queue=self.__class__.queue_name)
         channel.start_consuming()

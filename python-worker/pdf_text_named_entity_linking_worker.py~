@@ -23,7 +23,7 @@ class PdfTextKeywordExtractionWorker(AbstractWorker):
         pdf_filename = get_cache_filename(url) + '.data'
         text_filename = pdf_filename + '.txt'
 
-        with open(text_filename, encoding='ISO-8859-1') as file:
+        with open(text_filename, encoding='utf-8') as file:
             text = file.read().replace('\n', ' ')
 
         sentence_list = rake.split_sentences(text) # TODO: probably smarter by using nltk / json sentence list?
@@ -34,7 +34,7 @@ class PdfTextKeywordExtractionWorker(AbstractWorker):
         keyword_candidates = rake.generate_candidate_keyword_scores(phrase_list, word_scores)
         sorted_keywords = sorted(keyword_candidates.items(), key=operator.itemgetter(1), reverse=True)
         total_keywords = len(sorted_keywords)
-        # print(sorted_keywords[0:(total_keywords // 3)])
+        print(sorted_keywords[0:(total_keywords // 3)])
 
         for keyword, score in sorted_keywords[0:min(total_keywords // 3, max_keywords_per_file)]:
             annotation = create_annotation((namespaces.oa.score, Literal(score, datatype=XSD.decimal)),
