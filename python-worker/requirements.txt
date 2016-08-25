@@ -5,3 +5,4 @@ git+git://github.com/Clarifai/clarifai-python.git
 nltk
 python-dateutil
 langdetect
+PyPDF2
