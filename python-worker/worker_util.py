@@ -13,11 +13,12 @@ def get_cache_filename(url):
     base_ext = '.ttl'
     hash = hashlib.md5()
     hash.update(url.encode('utf-8'))
-    return base_path + hash.hexdigest()[:32] + base_ext
+    identifier = hash.hexdigest()[:32].lstrip('0')
+    return base_path + identifier + base_ext
 
 
 def create_annotation(*custom_properties, target, body, annotator):
-    model = Graph() 
+    model = Graph()
     annotationNode = BNode()
     model.add((annotationNode, RDF.type, namespaces.oa.Annotation))
     model.add((annotationNode, namespaces.oa.hasTarget, target))
