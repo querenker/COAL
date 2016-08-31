@@ -19,10 +19,9 @@ class PdfImageExtractionWorker(AbstractWorker):
         if not path.exists(images_dir):
             makedirs(images_dir)
 
-        call(['pdfimages', pdf_filename, images_dir])
+        call(['pdfimages', '-png', pdf_filename, images_dir])
 
-        #self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextformatting', url)
-        #self.send_to_queue('http://s16a.org/vocab/mcas/1.0/pdftextkeywordextraction', url)
+        self.send_to_queue('http://s16a.org/vocab/mcas/1.0/clarifai', url)
 
 
 if __name__ == '__main__':

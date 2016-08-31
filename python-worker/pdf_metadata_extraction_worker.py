@@ -43,12 +43,15 @@ class PdfMetadataExtractionWorker(AbstractWorker):
         self.write_and_merge_model(model, model_filename)
 
     def get_info_for_file(filepath):
-        reader = PdfFileReader(open(filepath, 'rb'))
-        info = reader.getDocumentInfo()
         out = []
-        for key in info:
-            if info[key]:
-                out.append((key, info[key]))
+        reader = PdfFileReader(open(filepath, 'rb'))
+        try:
+            info = reader.getDocumentInfo()
+            for key in info:
+                if info[key]:
+                    out.append((key, info[key]))
+        except:
+            pass
 
         return out
 

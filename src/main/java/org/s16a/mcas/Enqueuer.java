@@ -28,8 +28,8 @@ public class Enqueuer {
 		// (3) enqueue for the analyses
 
 		Map<String, List<Property>> analyses = new HashMap<String, List<Property>>();
-		analyses.put("image/jpeg", Arrays.asList(MCAS.mediainfo, MCAS.vcd, MCAS.clarifai));
-		analyses.put("image/png", Arrays.asList(MCAS.mediainfo, MCAS.clarifai));
+		analyses.put("image/jpeg", Arrays.asList(MCAS.mediainfo, MCAS.vcd));
+		analyses.put("image/png", Arrays.asList(MCAS.mediainfo));
 		analyses.put("text/plain", Arrays.asList(MCAS.ner));
 		analyses.put("application/pdf", Arrays.asList(MCAS.pdfmetadataextraction, MCAS.pdftextextraction, MCAS.pdfimageextraction));//
 
@@ -42,7 +42,7 @@ public class Enqueuer {
 		for (Property analysis : analyses.get(wantedMimeType)) {
 			if (model.getResource(url).getProperty(analysis) == null) {
 				System.out.println("enqueue for " + analysis.toString());
-								
+
 				String QUEUE_NAME = analysis.toString();
 				ConnectionFactory factory = new ConnectionFactory();
 				factory.setHost("localhost");
@@ -54,8 +54,8 @@ public class Enqueuer {
 				System.out.println(" [x] Sent '" + message + "'");
 				channel.close();
 				connection.close();
-			}			
-			
+			}
+
 		}
 
 	}
