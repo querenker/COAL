@@ -22,7 +22,7 @@ public class MCAS {
     public static final Property mediainfo = m_model.createProperty( NS + "mediainfo" );
     public static final Property vcd = m_model.createProperty(  NS + "vcd" );
     public static final Property ner = m_model.createProperty(  NS + "ner" );
-    //public static final Property clarifai = m_model.createProperty( NS + "clarifai" );
+    public static final Property clarifai = m_model.createProperty( NS + "clarifai" );
     public static final Property pdfmetadataextraction = m_model.createProperty( NS + "pdfmetadataextraction" );
     public static final Property pdftextextraction = m_model.createProperty( NS + "pdftextextraction" );
     public static final Property pdfimageextraction = m_model.createProperty( NS + "pdfimageextraction" );
